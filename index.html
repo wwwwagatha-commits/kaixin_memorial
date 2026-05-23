@@ -1,0 +1,4554 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="format-detection" content="telephone=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>开心之旅 ✨</title>
+<style>
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --sky1: #b8e0ff;
+    --sky2: #ffd6e0;
+    --gold: #ffd700;
+    --warm: #ff9a5c;
+    --soft: #ffe4b5;
+    --text: #4a3728;
+    --light: #fff8f0;
+    --green: #7ec850;
+    --water: #5bb8d4;
+    --pixel: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', sans-serif;
+  }
+
+  body {
+    background: #1a0a2e;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    min-height: 100dvh;
+    font-family: var(--pixel);
+    overflow: hidden;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  #game-container {
+    width: 480px;
+    height: 680px;
+    max-width: 100vw;
+    max-height: 100dvh;
+    position: relative;
+    overflow: hidden;
+    border: 3px solid #ffd700;
+    border-radius: 8px;
+    box-shadow: 0 0 30px rgba(255,215,0,0.3), 0 0 60px rgba(255,215,0,0.1);
+  }
+  @media (max-width: 520px) {
+    body { padding: 0; }
+    #game-container {
+      width: 100vw;
+      height: 100dvh;
+      border: none;
+      border-radius: 0;
+      box-shadow: none;
+    }
+  }
+  .bgm-toggle {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    z-index: 200;
+    width: 40px;
+    height: 36px;
+    padding: 0;
+    border: 2px solid rgba(255, 215, 0, 0.55);
+    border-radius: 6px;
+    background: rgba(26, 10, 46, 0.75);
+    color: #ffe8a8;
+    font-size: 17px;
+    line-height: 1;
+    cursor: pointer;
+    font-family: var(--pixel);
+    transition: transform 0.12s, border-color 0.2s, background 0.2s;
+  }
+  .bgm-toggle:hover {
+    transform: scale(1.06);
+    border-color: #ffd700;
+    background: rgba(45, 27, 78, 0.9);
+  }
+  .bgm-toggle.muted {
+    opacity: 0.65;
+    color: #998;
+  }
+  .sfx-toggle {
+    position: absolute;
+    bottom: 8px;
+    left: 54px;
+    z-index: 200;
+    width: 40px;
+    height: 36px;
+    padding: 0;
+    border: 2px solid rgba(255, 215, 0, 0.55);
+    border-radius: 6px;
+    background: rgba(26, 10, 46, 0.75);
+    color: #ffe8a8;
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+    font-family: var(--pixel);
+    transition: transform 0.12s, border-color 0.2s, background 0.2s;
+  }
+  .sfx-toggle:hover {
+    transform: scale(1.06);
+    border-color: #ffd700;
+    background: rgba(45, 27, 78, 0.9);
+  }
+  .sfx-toggle.muted {
+    opacity: 0.65;
+    color: #998;
+  }
+
+  canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    image-rendering: pixelated;
+  }
+
+  .screen {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .screen.active { display: flex; }
+
+  /* ===== 开场画面 ===== */
+  #screen-intro {
+    background: linear-gradient(180deg, #1a0a2e 0%, #2d1b4e 40%, #4a2070 100%);
+    text-align: center;
+    padding: 14px 16px 20px;
+    justify-content: center;
+    align-items: center;
+  }
+  #screen-intro .stars-bg {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none;
+  }
+  .intro-content { position: relative; z-index: 2; width: 100%; max-height: 100%; display: flex; flex-direction: column; flex: 0 1 auto; min-height: 0; align-items: center; }
+  .intro-title {
+    font-size: 32px; color: #ffd700;
+    text-shadow: 2px 2px 0 #ff8c00, 4px 4px 0 rgba(255,140,0,0.3);
+    margin-top: 0;
+    margin-bottom: 4px;
+    flex-shrink: 0;
+  }
+  .intro-subtitle {
+    font-size: 15px; color: #ffb3c6;
+    margin-top: -4px;
+    margin-bottom: 10px;
+    line-height: 1.35;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 2;
+  }
+  .merit-bar-container {
+    width: 280px; margin: 0 auto 12px;
+    flex-shrink: 0;
+  }
+  .merit-label { font-size: 12px; color: #ffd700; margin-bottom: 6px; text-align: left; }
+  .merit-bar {
+    width: 100%; height: 16px;
+    background: rgba(255,255,255,0.1);
+    border: 2px solid #ffd700;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .merit-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ffd700, #ff9a5c);
+    transition: width 0.8s ease;
+    width: 0%;
+  }
+  .start-btn {
+    background: #ffd700; color: #1a0a2e;
+    border: none; padding: 12px 32px;
+    font-family: var(--pixel); font-size: 18px;
+    cursor: pointer; border-radius: 4px;
+    transition: transform 0.1s;
+    margin-top: 4px;
+  }
+  .start-btn:hover { transform: scale(1.05); background: #ffe44d; }
+  .intro-reset-progress-btn {
+    margin-top: 14px;
+    align-self: center;
+    font-size: 12px;
+    color: rgba(120, 100, 160, 0.9);
+    background: transparent;
+    border: none;
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 6px 10px;
+  }
+  .intro-reset-progress-btn:hover {
+    color: rgba(75, 55, 120, 1);
+  }
+  .start-btn:disabled {
+    opacity: 0.55;
+    cursor: wait;
+    transform: none;
+  }
+
+  /* ===== 开场：开心立绘（整图完整显示，不裁切头部） ===== */
+  .intro-dog-wrap {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+    margin: 16px 0 10px;
+    padding: 0 8px;
+    overflow: visible;
+    background: transparent;
+    transition: transform 0.45s ease;
+    isolation: isolate;
+    position: relative;
+    z-index: 1;
+  }
+  .intro-dog-wrap.intro-dog-visible {
+    transform: scale(1.02) translateY(4px);
+  }
+  .intro-dog-frame {
+    position: relative;
+    max-width: 100%;
+    max-height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+    background: transparent;
+    border-radius: 8px;
+    filter: drop-shadow(0 4px 18px rgba(90, 60, 140, 0.35))
+            drop-shadow(0 0 28px rgba(180, 150, 255, 0.2));
+  }
+  .intro-dog-img {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: min(100%, 300px);
+    max-height: 268px;
+    object-fit: contain;
+    object-position: center center;
+    image-rendering: auto;
+    background: transparent;
+  }
+  .intro-dog-img.sprite-soft-ready {
+    filter: drop-shadow(0 0 1px rgba(220, 210, 255, 0.45));
+  }
+  .map-dog-avatar img {
+    background: transparent;
+  }
+  .map-dog-avatar img.sprite-soft-ready {
+    filter: drop-shadow(0 0 6px rgba(140, 110, 200, 0.45));
+  }
+  .intro-prologue {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+    z-index: 5;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 20px 18px 28px;
+    background: linear-gradient(180deg, transparent 0%, rgba(26, 10, 46, 0.35) 35%, rgba(26, 10, 46, 0.82) 100%);
+    pointer-events: auto;
+    animation: introPrologueFade 0.45s ease;
+  }
+  .intro-prologue.show { display: flex; }
+  @keyframes introPrologueFade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  .intro-prologue-box {
+    width: 100%;
+    max-width: 420px;
+    background: rgba(255, 248, 220, 0.96);
+    border: 3px solid #ffd700;
+    border-radius: 14px;
+    padding: 18px 20px 16px;
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.25);
+    text-align: left;
+  }
+  .intro-prologue-name {
+    font-size: 13px;
+    color: #ff9a5c;
+    margin-bottom: 10px;
+    font-weight: normal;
+  }
+  .intro-prologue-text {
+    font-size: 15px;
+    color: #4a3728;
+    line-height: 1.85;
+    min-height: 2.2em;
+  }
+  .intro-prologue-text.typing::after {
+    content: '▍';
+    animation: introCaret 0.8s step-end infinite;
+    color: #ffd700;
+    margin-left: 2px;
+  }
+  @keyframes introCaret {
+    50% { opacity: 0; }
+  }
+  .intro-prologue-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: 14px;
+    gap: 10px;
+  }
+  .intro-prologue-hint {
+    font-size: 11px;
+    color: #8b7355;
+    flex: 1;
+  }
+  .intro-prologue-btn {
+    background: #ffd700;
+    color: #1a0a2e;
+    border: none;
+    padding: 8px 20px;
+    font-family: var(--pixel);
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: transform 0.12s, background 0.2s;
+  }
+  .intro-prologue-btn:hover {
+    background: #ffe44d;
+    transform: scale(1.03);
+  }
+  .intro-content.intro-dimmed .intro-title,
+  .intro-content.intro-dimmed .intro-subtitle {
+    opacity: 0.35;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+  }
+  .intro-content.intro-dimmed .intro-start-btn-wrap {
+    opacity: 0.35;
+    pointer-events: none;
+  }
+
+  /* ===== 七星选关（与开场一致的紫色星空 + 画布闪烁金星） ===== */
+  #screen-map.constellation-screen {
+    padding: 0;
+    text-align: center;
+    background: linear-gradient(180deg, #1a0a2e 0%, #2d1b4e 40%, #4a2070 100%);
+    justify-content: flex-start;
+    align-items: stretch;
+  }
+  .map-star-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .map-constellation-art-wrap {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 2;
+    padding: 36px 4px 56px;
+  }
+  /* 与图片同盒：热区、狗头的 % 相对星座图，而不是整屏（避免缩放居中后错位） */
+  .map-constellation-art-stack {
+    position: relative;
+    display: inline-block;
+    vertical-align: middle;
+    line-height: 0;
+    max-width: min(500px, 98%);
+    max-height: min(480px, 70vh);
+    pointer-events: auto;
+  }
+  .map-constellation-art-stack .map-constellation-art {
+    display: block;
+    max-width: 100%;
+    max-height: min(480px, 70vh);
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    object-position: center;
+    filter: drop-shadow(0 4px 18px rgba(0, 0, 0, 0.4));
+    pointer-events: none;
+  }
+  .map-star-hit-layer {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  .map-star-hit-layer .star-level-btn {
+    pointer-events: auto;
+    z-index: 3;
+  }
+  .map-star-hit-layer .map-dog-avatar {
+    z-index: 4;
+  }
+  .constellation-wrap {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    flex: 1 1 auto;
+    min-height: 0;
+    background: transparent;
+  }
+  .map-back-intro {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 20;
+  }
+  .map-hud {
+    position: absolute;
+    bottom: max(72px, 12vh);
+    left: 50%;
+    transform: translateX(-50%);
+    right: auto;
+    width: min(300px, 88vw);
+    z-index: 15;
+    font-size: 12px;
+    color: #fff8e8;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.85);
+    pointer-events: none;
+    text-align: center;
+  }
+  .map-hud .merit-bar-container {
+    width: 100%;
+    margin: 0 auto;
+  }
+  .map-hud .merit-label {
+    text-align: center;
+  }
+  .map-tip {
+    position: absolute;
+    top: 52px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-8px);
+    z-index: 25;
+    background: rgba(26, 10, 46, 0.88);
+    border: 2px solid #ffd700;
+    color: #ffe8b8;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    max-width: 90%;
+  }
+  .map-tip.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  .star-level-btn {
+    position: absolute;
+    width: min(92px, 28vw);
+    height: min(92px, 28vw);
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    cursor: pointer;
+    transform: translate(-50%, -50%);
+    z-index: 6;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 0.15s ease;
+  }
+  .star-level-btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.65);
+    border-radius: 50%;
+  }
+  .star-level-btn:hover:not(.locked):not(:disabled) {
+    transform: translate(-50%, -50%) scale(1.06);
+  }
+  .star-level-btn.locked:not(.lit) {
+    cursor: not-allowed;
+  }
+  .star-level-btn.locked:not(.lit):hover {
+    transform: translate(-50%, -50%);
+  }
+  .star-level-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+  }
+  .map-dog-avatar {
+    position: absolute;
+    width: 44px;
+    height: 44px;
+    margin: 0;
+    padding: 0;
+    border: 3px solid #ffd700;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #1a0a2e;
+    transform: translate(-50%, -50%);
+    z-index: 14;
+    pointer-events: none;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.5), 0 0 14px rgba(255, 215, 0, 0.35);
+    transition: left 0.35s ease, top 0.35s ease;
+  }
+  .map-dog-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    image-rendering: pixelated;
+  }
+
+  /* ===== 任务五顶栏 ===== */
+  #screen-task5.task5-screen {
+    padding: 48px 16px 20px;
+    position: relative;
+  }
+  .task5-topbar {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    z-index: 40;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    pointer-events: none;
+  }
+  .task5-topbar .back-btn {
+    pointer-events: all;
+  }
+
+  /* ===== 任务六：午后客厅（像素画布） ===== */
+  #screen-task6 {
+    padding: 0;
+    overflow: hidden;
+    position: relative;
+    background: #2a2418;
+  }
+  .task6-hint {
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, -100%);
+    z-index: 11;
+    max-width: 94%;
+    text-align: center;
+    font-size: 12px;
+    color: rgba(255, 248, 232, 0.94);
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.82);
+    pointer-events: none;
+    line-height: 1.6;
+  }
+  .task6-quote {
+    font-size: 15px;
+    line-height: 1.85;
+    color: #4a3728;
+    letter-spacing: 0.02em;
+  }
+
+  .ending-back-btn {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 30;
+    pointer-events: all;
+  }
+
+  /* （七星选关使用 .constellation-screen，不再使用旧草地背景） */
+
+  .map-title { font-size: 20px; color: var(--text); margin-bottom: 16px; }
+  .task-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    width: 100%;
+    max-width: 420px;
+  }
+  .task-btn {
+    background: rgba(255,255,255,0.85);
+    border: 3px solid #ffd700;
+    border-radius: 8px; padding: 14px 10px;
+    cursor: pointer; font-family: var(--pixel);
+    font-size: 13px; color: var(--text);
+    transition: all 0.2s;
+    text-align: center;
+    position: relative;
+  }
+  .task-btn:hover { background: #fff8dc; transform: translateY(-2px); }
+  .task-btn.done {
+    background: rgba(126,200,80,0.3);
+    border-color: #7ec850;
+    color: #3a6b1a;
+  }
+  .task-btn.done::after {
+    content: '✓';
+    position: absolute; top: 4px; right: 8px;
+    font-size: 16px; color: #7ec850;
+  }
+  .task-icon { font-size: 28px; display: block; margin-bottom: 6px; }
+  .task-num { font-size: 10px; color: #888; }
+
+  /* ===== 通用游戏样式 ===== */
+  .game-screen {
+    padding: 0; overflow: hidden;
+  }
+  .game-canvas-wrap {
+    width: 100%; height: 100%;
+    position: relative;
+  }
+  .game-ui {
+    position: absolute; top: 10px; left: 10px; right: 10px;
+    display: flex; justify-content: space-between; align-items: center;
+    z-index: 10;
+    pointer-events: none;
+  }
+  .game-score {
+    background: rgba(0,0,0,0.5); color: #ffd700;
+    padding: 4px 10px; border-radius: 20px;
+    font-size: 14px; border: 1px solid rgba(255,215,0,0.4);
+  }
+  .back-btn {
+    background: rgba(0,0,0,0.5); color: #fff;
+    border: 1px solid rgba(255,255,255,0.3);
+    padding: 4px 12px; border-radius: 20px;
+    font-family: var(--pixel); font-size: 13px;
+    cursor: pointer; pointer-events: all;
+  }
+  .back-btn:hover { background: rgba(0,0,0,0.7); }
+
+  /* ===== 完成弹窗 ===== */
+  .complete-overlay {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.7);
+    display: none; align-items: center; justify-content: center;
+    z-index: 100; flex-direction: column;
+  }
+  .complete-overlay.show { display: flex; }
+  .complete-box {
+    background: linear-gradient(135deg, #fff8dc, #ffe4b5);
+    border: 3px solid #ffd700;
+    border-radius: 12px; padding: 24px 28px;
+    max-width: 360px; text-align: center;
+    animation: popIn 0.4s ease;
+  }
+  @keyframes popIn {
+    from { transform: scale(0.5); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  .complete-icon { font-size: 40px; margin-bottom: 12px; }
+  .complete-title { font-size: 18px; color: #8b4513; margin-bottom: 10px; }
+  .complete-text { font-size: 13px; color: #5c3317; line-height: 1.8; margin-bottom: 16px; }
+  .complete-btn {
+    background: #ffd700; color: #1a0a2e;
+    border: none; padding: 10px 24px;
+    font-family: var(--pixel); font-size: 15px;
+    cursor: pointer; border-radius: 4px;
+  }
+  .complete-btn:hover { background: #ffe44d; }
+
+  /* ===== 终局画面 ===== */
+  #screen-ending {
+    background: #0a1628;
+    flex-direction: column;
+    text-align: center;
+    padding: 0;
+    overflow: hidden;
+  }
+  #ending-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+  .ending-dialog {
+    position: absolute; bottom: 60px; left: 20px; right: 20px;
+    z-index: 11;
+    background: rgba(255,248,220,0.95);
+    border: 3px solid #ffd700;
+    border-radius: 12px; padding: 20px;
+    font-size: 14px; color: #4a3728;
+    line-height: 1.9; text-align: left;
+    display: none;
+  }
+  #dialog-text {
+    max-height: 42vh;
+    overflow-y: auto;
+  }
+  .dialog-name { font-size: 12px; color: #ff9a5c; margin-bottom: 6px; }
+  .dialog-next {
+    display: flex; justify-content: flex-end; margin-top: 12px;
+  }
+  .dialog-btn {
+    background: #ffd700; color: #1a0a2e;
+    border: none; padding: 6px 18px;
+    font-family: var(--pixel); font-size: 13px;
+    cursor: pointer; border-radius: 4px;
+  }
+  .ending-tagline {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 26%;
+    max-width: 92%;
+    z-index: 8;
+    font-size: 17px;
+    color: #fff4e0;
+    text-shadow: 0 2px 14px rgba(0,0,0,0.95), 0 0 24px rgba(180,140,255,0.45);
+    pointer-events: none;
+    text-align: center;
+    line-height: 1.55;
+    opacity: 0;
+    transition: opacity 1s ease;
+  }
+  .ending-tagline.show { opacity: 1; }
+  .ending-dim-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 18;
+    background: #050814;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 2.4s ease;
+  }
+  .ending-dim-layer.on { opacity: 0.92; pointer-events: auto; }
+  .ending-outro {
+    position: absolute;
+    inset: 0;
+    z-index: 22;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 20px;
+    background: rgba(6, 8, 22, 0.88);
+    padding: 24px;
+  }
+  .ending-outro.show { display: flex; }
+  .ending-well-btn {
+    background: linear-gradient(180deg, #ffe97a, #ffd700);
+    color: #1a0a2e;
+    border: 3px solid #fff8dc;
+    padding: 14px 22px;
+    font-family: var(--pixel);
+    font-size: 14px;
+    line-height: 1.65;
+    text-align: center;
+    max-width: 92%;
+    cursor: pointer;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.45);
+  }
+  .ending-well-btn:hover {
+    background: #fff0a0;
+    transform: scale(1.04);
+  }
+
+  /* ===== task1 ===== */
+  #screen-task1 {
+    background: linear-gradient(180deg, #6ab4e8 0%, #a8d8f8 40%, #b0e2ff 60%, #e8f4e8 80%, #c8e8b8 100%);
+  }
+
+  /* ===== task2 ===== */
+  #screen-task2 {
+    background: linear-gradient(180deg, #1a1a3e 0%, #2d2d5e 40%, #1a3a2a 70%, #0d2010 100%);
+  }
+
+  /* ===== task3 ===== */
+  #screen-task3 {
+    background: linear-gradient(180deg, #7ec8e8 0%, #9ad4a8 38%, #5a9a48 72%, #3d7a38 100%);
+  }
+  #screen-task3 .game-score {
+    font-size: 11px;
+    top: 6px;
+    padding: 4px 10px;
+    max-width: 92%;
+    line-height: 1.35;
+    text-align: center;
+  }
+
+  /* ===== task4 ===== */
+  #screen-task4 {
+    background: linear-gradient(180deg, #87ceeb 0%, #b0e2ff 40%, #90ee90 70%, #7ec850 100%);
+  }
+
+  /* ===== task5 ===== */
+  #screen-task5 {
+    background: linear-gradient(180deg, #f0e6d2 0%, #ead5b0 50%, #d4b896 100%);
+  }
+
+  /* ===== task7 ===== */
+  #screen-task7 {
+    background: linear-gradient(180deg, #b0e2ff 0%, #90ee90 60%, #7ec850 100%);
+  }
+  #screen-task7 .complete-title,
+  #screen-task7 .complete-text {
+    font-size: 14px;
+  }
+  .parchment {
+    background: linear-gradient(135deg, #f5e6c8, #ede0bb, #f0e6c8);
+    border: 3px solid #8b7355;
+    border-radius: 8px;
+    padding: 24px 28px;
+    width: 380px;
+    position: relative;
+    box-shadow: 4px 4px 0 rgba(139,115,85,0.3);
+  }
+  .parchment-title { font-size: 18px; color: #5c3a1e; margin-bottom: 16px; text-align: center; }
+  .parchment-prompt { font-size: 13px; color: #6b4c2a; margin-bottom: 16px; line-height: 1.8; }
+  .message-input {
+    width: 100%; min-height: 80px;
+    background: rgba(255,248,220,0.6);
+    border: 2px solid #8b7355;
+    border-radius: 4px; padding: 10px;
+    font-family: var(--pixel); font-size: 13px;
+    color: #4a3728; resize: none;
+    outline: none;
+  }
+  .message-input::placeholder { color: #a0845c; }
+  .send-btn {
+    background: #8b4513; color: #fff8dc;
+    border: none; padding: 10px 24px;
+    font-family: var(--pixel); font-size: 14px;
+    cursor: pointer; border-radius: 4px;
+    margin-top: 12px; width: 100%;
+  }
+  .send-btn:hover { background: #a0522d; }
+  .footprints-container {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; overflow: hidden;
+  }
+  .footprint {
+    position: absolute; font-size: 20px;
+    animation: floatUp 3s ease-out forwards;
+  }
+  @keyframes floatUp {
+    from { opacity: 1; transform: translateY(0) scale(1); }
+    to { opacity: 0; transform: translateY(-200px) scale(0.5); }
+  }
+
+  /* 星星装饰 */
+  .star-deco {
+    position: absolute; border-radius: 50%;
+    animation: twinkle 2s ease-in-out infinite alternate;
+  }
+  @keyframes twinkle {
+    from { opacity: 0.3; transform: scale(1); }
+    to { opacity: 1; transform: scale(1.3); }
+  }
+
+  /* 流星 */
+  .meteor {
+    position: absolute; background: linear-gradient(90deg, white, transparent);
+    height: 2px; border-radius: 1px;
+    animation: shoot 1.5s ease-out forwards;
+  }
+  @keyframes shoot {
+    from { opacity: 1; transform: translateX(0) translateY(0); }
+    to { opacity: 0; transform: translateX(200px) translateY(80px); }
+  }
+
+  /* 花瓣 */
+  .petal {
+    position: absolute; border-radius: 50% 0;
+    animation: fallPetal 4s ease-in forwards;
+  }
+  @keyframes fallPetal {
+    from { opacity: 0.9; transform: translateY(-20px) rotate(0deg); }
+    to { opacity: 0; transform: translateY(700px) rotate(360deg); }
+  }
+
+  /* 像素狗 SVG */
+  .pixel-dog { image-rendering: pixelated; }
+
+  /* 河灯 */
+  .river-lamp {
+    cursor: pointer; transition: filter 0.3s;
+  }
+  .river-lamp:hover { filter: brightness(1.3); }
+
+  /* 拼图 */
+  .puzzle-piece {
+    cursor: grab; user-select: none;
+    transition: filter 0.2s;
+  }
+  .puzzle-piece:hover { filter: brightness(1.2); }
+  .puzzle-piece:active { cursor: grabbing; }
+
+  /* 对话气泡 */
+  .bubble {
+    position: absolute;
+    background: rgba(255,248,220,0.95);
+    border: 2px solid #ffd700;
+    border-radius: 12px; padding: 10px 14px;
+    font-size: 12px; color: #4a3728;
+    line-height: 1.7; max-width: 260px;
+    animation: bubblePop 0.3s ease;
+    z-index: 50;
+  }
+  @keyframes bubblePop {
+    from { transform: scale(0.5); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  .bubble::after {
+    content: '';
+    position: absolute; bottom: -12px; left: 20px;
+    width: 0; height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 12px solid #ffd700;
+  }
+
+  /* 爱心进度 */
+  .heart-progress {
+    position: absolute;
+    font-size: 11px; color: #fff;
+    background: rgba(0,0,0,0.6);
+    padding: 3px 8px; border-radius: 10px;
+  }
+  .love-btn {
+    position: absolute;
+    background: #ff6b9d; color: white;
+    border: none; padding: 8px 20px;
+    font-family: var(--pixel); font-size: 13px;
+    cursor: pointer; border-radius: 20px;
+    animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+  }
+
+  .retry-overlay {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.6);
+    display: none; align-items: center; justify-content: center;
+    z-index: 90; flex-direction: column; gap: 16px;
+  }
+  .retry-overlay.show { display: flex; }
+  .retry-box {
+    background: #fff8dc; border: 3px solid #ffd700;
+    border-radius: 12px; padding: 24px; text-align: center;
+  }
+  .retry-title { font-size: 18px; color: #4a3728; margin-bottom: 10px; }
+  .retry-btn {
+    background: #ffd700; color: #1a0a2e;
+    border: none; padding: 10px 24px;
+    font-family: var(--pixel); font-size: 15px;
+    cursor: pointer; border-radius: 4px; margin-top: 10px;
+  }
+
+  .memorial-boot-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(26, 10, 46, 0.92);
+    color: #ffd700;
+    font-size: 16px;
+    pointer-events: none;
+    transition: opacity 0.35s ease;
+  }
+  .memorial-boot-overlay.hidden {
+    opacity: 0;
+    visibility: hidden;
+  }
+  .memorial-load-error {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: #1a0a2e;
+    color: #ffe4b5;
+    font-size: 14px;
+    line-height: 1.6;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+<div id="game-container">
+  <button type="button" class="bgm-toggle" id="bgm-toggle" title="背景音乐" aria-pressed="false" aria-label="关闭音乐">🎵</button>
+  <button type="button" class="sfx-toggle" id="sfx-toggle" title="音效" aria-pressed="false" aria-label="关闭音效">🔔</button>
+
+  <!-- ===== 开场 ===== -->
+  <div id="screen-intro" class="screen active">
+    <canvas id="intro-canvas" width="480" height="680" style="position:absolute;top:0;left:0;pointer-events:none"></canvas>
+    <div class="intro-content" id="intro-content">
+      <div class="intro-title">开心之旅</div>
+      <div class="intro-subtitle">谢谢你，陪我一起走过 ✨</div>
+      <div class="intro-dog-wrap" id="intro-dog-wrap" aria-hidden="false">
+        <div class="intro-dog-frame">
+          <img class="intro-dog-img" src="kaixin_intro_dog.png" data-memorial-asset="dog" alt="开心" decoding="async" />
+        </div>
+      </div>
+      <div class="intro-start-btn-wrap">
+        <button type="button" class="start-btn" id="intro-start-btn" onclick="beginIntroPrologue()">出发 ▶</button>
+      </div>
+      <button type="button" class="intro-reset-progress-btn" id="intro-reset-progress-btn" onclick="resetMemorialFullProgress()" style="display:none">再陪开心走一次</button>
+    </div>
+    <div class="intro-prologue" id="intro-prologue" role="dialog" aria-modal="true" aria-labelledby="intro-prologue-name">
+      <div class="intro-prologue-box">
+        <div class="intro-prologue-name" id="intro-prologue-name">🐾 开心</div>
+        <div class="intro-prologue-text typing" id="intro-prologue-text"></div>
+        <div class="intro-prologue-actions">
+          <span class="intro-prologue-hint" id="intro-prologue-hint">点击继续</span>
+          <button type="button" class="intro-prologue-btn" id="intro-prologue-btn" onclick="advanceIntroPrologue()">继续 ▶</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 七星选关 ===== -->
+  <div id="screen-map" class="screen constellation-screen">
+    <div class="constellation-wrap">
+      <canvas id="map-star-canvas" class="map-star-canvas" width="480" height="680" aria-hidden="true"></canvas>
+      <div class="map-constellation-art-wrap">
+        <div class="map-constellation-art-stack">
+          <img class="map-constellation-art" src="map_constellation_levels.png" data-memorial-asset="map" alt="" decoding="async" />
+          <div class="map-star-hit-layer">
+            <button type="button" class="star-level-btn" id="star-level-1" onclick="tryStartLevel(1)" aria-label="关卡一"></button>
+            <button type="button" class="star-level-btn" id="star-level-2" onclick="tryStartLevel(2)" aria-label="关卡二"></button>
+            <button type="button" class="star-level-btn" id="star-level-3" onclick="tryStartLevel(3)" aria-label="关卡三"></button>
+            <button type="button" class="star-level-btn" id="star-level-4" onclick="tryStartLevel(4)" aria-label="关卡四"></button>
+            <button type="button" class="star-level-btn" id="star-level-5" onclick="tryStartLevel(5)" aria-label="关卡五·唤醒开心"></button>
+            <button type="button" class="star-level-btn" id="star-level-6" onclick="tryStartLevel(6)" aria-label="关卡六·点亮河灯"></button>
+            <button type="button" class="star-level-btn" id="star-level-7" onclick="tryStartLevel(7)" aria-label="关卡七·终章"></button>
+            <div id="map-dog-avatar" class="map-dog-avatar" aria-hidden="true">
+              <img src="kaixin_intro_dog.png" data-memorial-asset="dog" alt="" width="44" height="44" />
+            </div>
+          </div>
+        </div>
+      </div>
+      <button type="button" class="back-btn map-back-intro" onclick="backToIntro()">← 返回</button>
+      <div id="map-tip" class="map-tip" role="status"></div>
+      <div class="map-hud" aria-live="polite">
+        <div class="merit-bar-container">
+          <div class="merit-label">开心的愿力 <span id="merit-text">0 / 7</span></div>
+          <div class="merit-bar"><div class="merit-fill" id="merit-fill" style="width:0%"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 任务一：收集星星骨头 ===== -->
+  <div id="screen-task1" class="screen game-screen">
+    <canvas id="canvas1" width="480" height="680"></canvas>
+    <div class="game-ui">
+      <div class="game-score">🦴 <span id="score1">0</span>/10 &nbsp; 💔 <span id="miss1">0</span>/3</div>
+      <button class="back-btn" onclick="backToMap()">← 返回</button>
+    </div>
+    <div class="complete-overlay" id="complete1">
+      <div class="complete-box">
+        <div class="complete-icon">✨</div>
+        <div class="complete-title">找到啦！</div>
+        <div class="complete-text">找到了和姐姐一起散步时，<br>那根最爱的骨头 🦴</div>
+        <button class="complete-btn" onclick="finishTask(1)">继续 ▶</button>
+      </div>
+    </div>
+    <div class="retry-overlay" id="retry1">
+      <div class="retry-box">
+        <div class="retry-title">漏掉啦，再试一次 🐾</div>
+        <button class="retry-btn" onclick="resetTask1()">再试一次</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 任务二：点亮回忆花灯 ===== -->
+  <div id="screen-task2" class="screen game-screen">
+    <canvas id="canvas2" width="480" height="680"></canvas>
+    <div class="game-ui">
+      <div class="game-score">🏮 已点亮 <span id="lit-count">0</span>/5</div>
+      <button class="back-btn" onclick="backToMap()">← 返回</button>
+    </div>
+    <div id="lamp-bubble" class="bubble" style="display:none;top:200px;left:80px;"></div>
+    <div id="love-container"></div>
+    <div class="complete-overlay" id="complete2">
+      <div class="complete-box">
+        <div class="complete-icon">🌠</div>
+        <div class="complete-title">🌠 全都亮了！</div>
+        <div class="complete-text">每一盏灯，都是一段温暖的记忆<br>开心和姐姐一起的时光，永远闪亮</div>
+        <button class="complete-btn" onclick="finishTask(6)">继续 ▶</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 任务三：森林迷宫 ===== -->
+  <div id="screen-task3" class="screen game-screen">
+    <canvas id="canvas3" width="480" height="680"></canvas>
+    <div class="game-ui">
+      <div class="game-score"><span id="puzzle-count">0/3</span></div>
+      <button class="back-btn" onclick="backToMap()">← 返回</button>
+    </div>
+    <div class="complete-overlay" id="complete3">
+      <div class="complete-box">
+        <div class="complete-icon">🌸</div>
+        <div class="complete-title">走出森林啦！</div>
+        <div class="complete-text">纯真的你，永远善良 💎</div>
+        <button class="complete-btn" onclick="finishTask(4)">继续 ▶</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 任务四：飞盘游戏 ===== -->
+  <div id="screen-task4" class="screen game-screen">
+    <canvas id="canvas4" width="480" height="680"></canvas>
+    <div class="game-ui">
+      <div class="game-score">🥏 <span id="disc-score">0</span>/5</div>
+      <button class="back-btn" onclick="backToMap()">← 返回</button>
+    </div>
+    <div class="complete-overlay" id="complete4">
+      <div class="complete-box">
+        <div class="complete-icon">💝</div>
+        <div class="complete-title">太棒了！</div>
+        <div class="complete-text">"开心真棒！开心真厉害！！"<br><br>姐姐欣喜地揉揉我的头。</div>
+        <button class="complete-btn" onclick="finishTask(3)">继续 ▶</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 任务五：留言 ===== -->
+  <div id="screen-task5" class="screen task5-screen">
+    <div class="footprints-container" id="footprints"></div>
+    <div class="parchment">
+      <div class="parchment-title">🪶 小狗留言箱</div>
+      <div class="parchment-prompt">愿力还需要被听到哦，替开心写下它想对你说的话吧……</div>
+      <textarea class="message-input" id="farewell-input"
+        placeholder="不要哭哦，这边的肉干很好吃哦" maxlength="60" rows="3"></textarea>
+      <button class="send-btn" onclick="sendFarewell()">📮 寄出</button>
+    </div>
+  </div>
+
+  <!-- ===== 任务六：午后客厅 ===== -->
+  <div id="screen-task6" class="screen game-screen">
+    <canvas id="canvas6" width="480" height="680"></canvas>
+    <div class="game-ui">
+      <button type="button" class="back-btn" onclick="backToMap()">← 返回</button>
+    </div>
+      <div class="task6-hint" id="task6-hint">拖拽物品与开心互动吧</div>
+    <div class="complete-overlay" id="complete6">
+      <div class="complete-box">
+        <div class="complete-icon">😝</div>
+        <div class="complete-title">姐姐的味道！</div>
+        <p class="complete-text task6-quote">是姐姐的味道！开心知道，姐姐要回来了！</p>
+        <button type="button" class="complete-btn" onclick="finishTask(5)">继续 ▶</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 任务七：QTE拔河比赛 ===== -->
+  <div id="screen-task7" class="screen game-screen">
+    <canvas id="canvas7" width="480" height="680"></canvas>
+    <div class="game-ui">
+      <div class="game-score">开心的倔强</div>
+      <button class="back-btn" onclick="backToMap()">← 返回</button>
+    </div>
+    <div class="complete-overlay" id="complete7">
+      <div class="complete-box">
+        <div class="complete-icon">✨</div>
+        <div class="complete-title">姐姐赢啦！</div>
+        <div class="complete-text">😊 无论多少次，开心都想和姐姐再玩一局</div>
+        <button class="complete-btn" onclick="finishTask(2)">继续 ▶</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 终局 ===== -->
+  <div id="screen-ending" class="screen">
+    <button type="button" class="back-btn ending-back-btn" onclick="backFromEnding()">← 返回</button>
+    <canvas id="ending-canvas" width="480" height="680"></canvas>
+    <div class="ending-dialog" id="ending-dialog">
+      <div class="dialog-name">🐾 开心说：</div>
+      <div id="dialog-text"></div>
+      <div class="dialog-next">
+        <button class="dialog-btn" onclick="nextDialog()">继续 ▶</button>
+      </div>
+    </div>
+    <div id="ending-tagline" class="ending-tagline" aria-live="polite"></div>
+    <div id="ending-dim-layer" class="ending-dim-layer" aria-hidden="true"></div>
+    <div id="ending-outro" class="ending-outro">
+      <button type="button" class="ending-well-btn" id="ending-well-btn" hidden>好的，开心。我会好好的。再见。</button>
+    </div>
+  </div>
+
+</div>
+
+<div id="memorial-boot-overlay" class="memorial-boot-overlay" aria-live="polite">
+  <p class="memorial-boot-text">开心之旅加载中…</p>
+</div>
+<div id="memorial-load-error" class="memorial-load-error" style="display:none" role="alert">
+  <p>资源未能加载，请确认 <strong>memorial-assets.js</strong> 与本页面在同一文件夹，或通过网页链接打开。</p>
+</div>
+
+<script src="memorial-assets.js" onerror="window.memorialAssetsLoadFailed=true"></script>
+<script>
+const W = 480, H = 680;
+/** 调试：true = 任意关卡可进；定版发布前请改回 false */
+const MEMORIAL_DEBUG_UNLOCK_ALL_LEVELS = true;
+let completedTasks = new Set();
+let meritCount = 0;
+
+/** localStorage：开场对白已读、关卡进度（与「再陪开心走一次」清空逻辑一致） */
+const MEMORIAL_LS_INTRO = 'kaixin_memorial_intro_prologue_done';
+const MEMORIAL_LS_LEVELS = 'kaixin_memorial_completed_levels';
+
+function memorialSaveLevels() {
+  try {
+    localStorage.setItem(MEMORIAL_LS_LEVELS, JSON.stringify([...completedTasks].sort((a, b) => a - b)));
+  } catch (e) {}
+}
+
+function memorialPersistIntroDone() {
+  introPrologueCompletedOnce = true;
+  try {
+    localStorage.setItem(MEMORIAL_LS_INTRO, '1');
+  } catch (e) {}
+}
+
+// ===== 工具函数 =====
+function $(id) { return document.getElementById(id); }
+
+/** BGM：优先 MEMORIAL_EMBEDDED（memorial-assets.js），否则同目录 MP3 */
+const MemorialBgm = (function () {
+  let media = null;
+  let muted = false;
+  let started = false;
+  let track = 'default';
+  const VOL = 0.48;
+
+  function getEmb() {
+    return typeof MEMORIAL_EMBEDDED !== 'undefined' ? MEMORIAL_EMBEDDED : {};
+  }
+
+  function srcFor(t) {
+    const emb = getEmb();
+    if (t === 'ending') return emb.bgm_ending || 'A_Walk_Through_The_Tall_Grass.mp3';
+    return emb.bgm || 'sunlight_on_the_carpet.mp3';
+  }
+
+  function getMedia() {
+    if (media) return media;
+    const gc = document.getElementById('game-container');
+    if (!gc) return null;
+    const a = document.createElement('audio');
+    a.id = 'memorial-bgm-audio';
+    a.loop = true;
+    a.preload = 'auto';
+    a.setAttribute('aria-hidden', 'true');
+    a.style.cssText = 'position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;left:0;bottom:0;overflow:hidden;';
+    a.src = srcFor(track);
+    gc.appendChild(a);
+    media = a;
+    return a;
+  }
+
+  function tryPlay() {
+    const a = getMedia();
+    if (!a) return;
+    a.volume = muted ? 0 : VOL;
+    const p = a.play();
+    if (p && typeof p.catch === 'function') p.catch(() => {});
+  }
+
+  function switchTrack(next) {
+    if (next !== 'ending' && next !== 'default') return;
+    if (track === next && media) return;
+    track = next;
+    const a = getMedia();
+    if (!a) return;
+    const wasPlaying = started && !muted;
+    a.pause();
+    a.src = srcFor(track);
+    a.load();
+    if (wasPlaying) tryPlay();
+  }
+
+  return {
+    start() {
+      if (started) return;
+      const a = getMedia();
+      if (!a) return;
+      started = true;
+      tryPlay();
+    },
+    unlock() {
+      tryPlay();
+    },
+    isRunning() { return started; },
+    switchToEnding() { switchTrack('ending'); },
+    switchToDefault() { switchTrack('default'); },
+    toggle() {
+      muted = !muted;
+      const a = getMedia();
+      if (a) {
+        a.volume = muted ? 0 : VOL;
+        if (muted) a.pause();
+        else a.play().catch(() => {});
+      }
+      return muted;
+    },
+    isMuted() { return muted; }
+  };
+})();
+
+/** 关卡互动音效（与 BGM 静音解耦；Web Audio 轻量合成） */
+let memorialSfxCtx = null;
+let memorialSfxMuted = false;
+function playMemorialSfx(kind) {
+  if (memorialSfxMuted) return;
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) return;
+  if (!memorialSfxCtx) memorialSfxCtx = new AC();
+  const ctx = memorialSfxCtx;
+  ctx.resume().catch(() => {});
+  const t0 = ctx.currentTime + 0.008;
+  const out = ctx.createGain();
+  out.connect(ctx.destination);
+  out.gain.value = 0.22;
+
+  function tone(freq, type, dur, vol, tStart, slideTo) {
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = type;
+    o.frequency.setValueAtTime(freq, tStart);
+    if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, tStart + dur * 0.85);
+    o.connect(g).connect(out);
+    g.gain.setValueAtTime(0.0001, tStart);
+    g.gain.linearRampToValueAtTime(vol, tStart + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, tStart + dur);
+    o.start(tStart);
+    o.stop(tStart + dur + 0.02);
+  }
+
+  if (kind === 'pickup') {
+    tone(587.33, 'sine', 0.08, 0.45, t0);
+    tone(880, 'sine', 0.1, 0.35, t0 + 0.06);
+  } else if (kind === 'miss') {
+    tone(130, 'triangle', 0.18, 0.35, t0, 90);
+  } else if (kind === 'tap') {
+    tone(420, 'square', 0.04, 0.12, t0);
+  } else if (kind === 'chime') {
+    tone(523.25, 'sine', 0.12, 0.4, t0);
+    tone(659.25, 'sine', 0.14, 0.32, t0 + 0.1);
+    tone(783.99, 'sine', 0.16, 0.26, t0 + 0.2);
+  } else if (kind === 'snap') {
+    tone(200, 'triangle', 0.14, 0.5, t0, 95);
+    tone(330, 'sine', 0.06, 0.2, t0 + 0.02);
+  } else if (kind === 'bump') {
+    tone(160, 'square', 0.07, 0.15, t0);
+  } else if (kind === 'catch') {
+    tone(440, 'sine', 0.06, 0.4, t0);
+    tone(554.37, 'sine', 0.08, 0.28, t0 + 0.05);
+  } else if (kind === 'sparkle') {
+    tone(1046.5, 'sine', 0.05, 0.25, t0);
+    tone(1318.51, 'sine', 0.06, 0.2, t0 + 0.04);
+  } else if (kind === 'letter') {
+    tone(392, 'triangle', 0.1, 0.3, t0);
+    tone(523.25, 'triangle', 0.14, 0.22, t0 + 0.08);
+  }
+}
+
+/**
+ * 关卡内统一：姐姐像素立绘（与关卡2一致）。脚底世界坐标 (feetX, feetY)。
+ * opts: { scale, alpha, pose:'walk'|'wave'|'throw', mirror }
+ */
+function drawLevelSister(ctx, feetX, feetY, frame, opts) {
+  opts = opts || {};
+  const scale = opts.scale != null ? opts.scale : 1;
+  const alpha = opts.alpha != null ? opts.alpha : 1;
+  const pose = opts.pose || 'walk';
+  const mirror = !!opts.mirror;
+  const bob = Math.sin(frame * 0.14) * (pose === 'wave' ? 2.2 : 1.5);
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.translate(feetX, feetY + bob);
+  if (mirror) ctx.scale(-1, 1);
+  ctx.scale(scale, scale);
+  ctx.imageSmoothingEnabled = false;
+  const hair = '#3d2418';
+  const skin = '#f5d0c8';
+  const dress = '#6b8cbc';
+  const dressDark = '#4a6a9a';
+  const shoe = '#2a2a38';
+  ctx.fillStyle = shoe;
+  ctx.fillRect(-8, -2, 6, 3);
+  ctx.fillRect(1, -2, 6, 3);
+  ctx.fillStyle = dress;
+  ctx.fillRect(-10, -22, 20, 22);
+  ctx.fillStyle = dressDark;
+  ctx.fillRect(-10, -8, 20, 4);
+  ctx.fillStyle = dress;
+  ctx.fillRect(-7, -34, 14, 14);
+  if (pose === 'wave') {
+    const w = Math.sin(frame * 0.22) * 5;
+    ctx.fillStyle = skin;
+    ctx.fillRect(5, -34, 5, 12 + w * 0.15);
+    ctx.fillRect(-12, -34 - w * 0.1, 5, 12 + w * 0.12);
+  } else if (pose === 'throw') {
+    ctx.fillStyle = skin;
+    ctx.fillRect(-30, -38, 22, 6);
+    ctx.fillRect(6, -32, 5, 10);
+  } else {
+    const arm = Math.sin(frame * 0.18) * 3;
+    ctx.fillStyle = skin;
+    ctx.fillRect(5, -32, 5, 10);
+    ctx.fillRect(-10 + arm * 0.2, -30, 4, 9);
+  }
+  ctx.fillStyle = skin;
+  ctx.fillRect(-5, -42, 10, 10);
+  ctx.fillRect(1, -40, 8, 7);
+  ctx.fillStyle = hair;
+  ctx.fillRect(-8, -48, 16, 10);
+  ctx.fillRect(-9, -46, 6, 12);
+  ctx.fillRect(3, -46, 8, 10);
+  ctx.fillStyle = '#1a1010';
+  ctx.fillRect(4, -38, 2, 2);
+  ctx.restore();
+}
+
+/**
+ * 关卡内统一：开心边牧像素立绘（与关卡2一致）。脚底世界坐标 (feetX, feetY)。
+ * opts: { scale, glow, halo, bobPhase, pose:'normal'|'strain' }
+ */
+function drawLevelHappyDog(ctx, feetX, feetY, frame, opts) {
+  opts = opts || {};
+  const scale = opts.scale != null ? opts.scale : 1;
+  const glow = opts.glow != null ? opts.glow : 0;
+  const halo = !!opts.halo;
+  const pose = opts.pose || 'normal';
+  const bobPh = opts.bobPhase != null ? opts.bobPhase : frame * 0.16 + 1.1;
+  const bob = Math.sin(bobPh) * 1.8;
+  ctx.save();
+  ctx.translate(feetX, feetY + bob);
+  if (glow > 0) {
+    ctx.shadowColor = 'rgba(255,215,0,0.85)';
+    ctx.shadowBlur = 18 * glow;
+  }
+  ctx.scale(scale, scale);
+  ctx.imageSmoothingEnabled = false;
+  const blk = '#14141c';
+  const wht = '#eceef2';
+  const shd = '#5c5c68';
+  const nose = '#e898a4';
+  const eye = '#0a0a0e';
+  ctx.fillStyle = blk;
+  ctx.fillRect(10, -12, 8, 5);
+  ctx.fillStyle = wht;
+  ctx.fillRect(16, -16, 6, 6);
+  ctx.fillStyle = wht;
+  ctx.fillRect(-9, -2, 5, 3);
+  ctx.fillRect(2, -2, 5, 3);
+  ctx.fillStyle = shd;
+  ctx.fillRect(-9, 0, 5, 2);
+  ctx.fillRect(2, 0, 5, 2);
+  ctx.fillStyle = blk;
+  ctx.fillRect(-10, -14, 20, 10);
+  ctx.fillStyle = wht;
+  ctx.fillRect(-7, -8, 14, 5);
+  ctx.fillStyle = wht;
+  ctx.fillRect(-8, -26, 16, 12);
+  ctx.fillStyle = blk;
+  ctx.fillRect(-9, -25, 7, 11);
+  ctx.fillRect(2, -22, 7, 8);
+  ctx.fillStyle = wht;
+  ctx.fillRect(-5, -16, 10, 4);
+  ctx.fillRect(-2, -24, 5, 7);
+  if (pose === 'strain') {
+    ctx.strokeStyle = '#2a2018';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(-2, -22); ctx.lineTo(1, -20);
+    ctx.moveTo(4, -22); ctx.lineTo(7, -20);
+    ctx.stroke();
+  } else {
+    ctx.fillStyle = eye;
+    ctx.fillRect(0, -21, 2, 2);
+  }
+  ctx.fillStyle = nose;
+  ctx.fillRect(-1, -15, 3, 2);
+  ctx.fillStyle = blk;
+  ctx.fillRect(-9, -28, 5, 5);
+  ctx.fillRect(3, -28, 5, 5);
+  ctx.shadowBlur = 0;
+  if (halo) {
+    ctx.strokeStyle = `rgba(255,215,0,${0.4 + 0.4 * Math.abs(Math.sin(frame * 0.1))})`;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(0, -26, 10, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  if (glow > 0) {
+    ctx.strokeStyle = `rgba(255,215,0,${glow})`;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(0, -26, 12, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+/** 正面朝向镜头的开心边牧（拔河等），脚底在局部坐标 (0, 12) 附近 */
+function drawHappyDogFront(ctx, centerX, topY, frame, opts) {
+  opts = opts || {};
+  const scale = opts.scale != null ? opts.scale : 1.65;
+  const pose = opts.pose || 'normal';
+  const bobPh = opts.bobPhase != null ? opts.bobPhase : frame * 0.2;
+  const bob = Math.sin(bobPh) * 1.4;
+  ctx.save();
+  ctx.translate(centerX, topY + bob);
+  ctx.scale(scale, scale);
+  ctx.imageSmoothingEnabled = false;
+  const blk = '#14141c';
+  const wht = '#eceef2';
+  const nose = '#e898a4';
+  ctx.fillStyle = blk;
+  ctx.fillRect(-15, -30, 9, 11);
+  ctx.fillRect(6, -30, 9, 11);
+  ctx.fillRect(-11, -32, 22, 9);
+  ctx.fillStyle = wht;
+  ctx.fillRect(-9, -28, 18, 16);
+  ctx.fillRect(-4, -24, 8, 10);
+  if (pose === 'strain') {
+    ctx.strokeStyle = '#2a2018';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(-7, -22); ctx.lineTo(-4, -19);
+    ctx.moveTo(4, -22); ctx.lineTo(7, -19);
+    ctx.stroke();
+  } else {
+    ctx.fillStyle = '#0a0a0e';
+    ctx.fillRect(-7, -22, 3, 3);
+    ctx.fillRect(4, -22, 3, 3);
+  }
+  ctx.fillStyle = nose;
+  ctx.fillRect(-2, -15, 4, 3);
+  ctx.fillStyle = blk;
+  ctx.fillRect(-13, -10, 26, 24);
+  ctx.fillStyle = wht;
+  ctx.fillRect(-8, -6, 16, 18);
+  ctx.fillStyle = blk;
+  ctx.fillRect(-12, 12, 7, 4);
+  ctx.fillRect(5, 12, 7, 4);
+  ctx.restore();
+}
+
+function initMemorialBgmUi() {
+  const btn = $('bgm-toggle');
+  if (btn) {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (!MemorialBgm.isRunning()) {
+        MemorialBgm.start();
+        return;
+      }
+      const m = MemorialBgm.toggle();
+      btn.classList.toggle('muted', m);
+      btn.setAttribute('aria-pressed', m ? 'true' : 'false');
+      btn.setAttribute('aria-label', m ? '开启音乐' : '关闭音乐');
+      btn.textContent = m ? '🔇' : '🎵';
+    });
+  }
+  const sfxBtn = $('sfx-toggle');
+  if (sfxBtn) {
+    sfxBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      memorialSfxMuted = !memorialSfxMuted;
+      sfxBtn.classList.toggle('muted', memorialSfxMuted);
+      sfxBtn.setAttribute('aria-pressed', memorialSfxMuted ? 'true' : 'false');
+      sfxBtn.setAttribute('aria-label', memorialSfxMuted ? '开启音效' : '关闭音效');
+      sfxBtn.textContent = memorialSfxMuted ? '🔕' : '🔔';
+    });
+  }
+}
+
+function memorialWechatAudioUnlock() {
+  MemorialBgm.unlock();
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (AC && memorialSfxCtx) memorialSfxCtx.resume().catch(() => {});
+}
+
+function memorialInitWechatCompat() {
+  if (/MicroMessenger/i.test(navigator.userAgent)) {
+    document.documentElement.classList.add('wechat-env');
+  }
+  document.addEventListener('WeixinJSBridgeReady', memorialWechatAudioUnlock, false);
+  if (typeof WeixinJSBridge !== 'undefined') {
+    WeixinJSBridge.invoke('getNetworkType', {}, memorialWechatAudioUnlock);
+  }
+  document.addEventListener('touchstart', function firstTouch() {
+    memorialWechatAudioUnlock();
+    document.removeEventListener('touchstart', firstTouch);
+  }, { passive: true });
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  $(id).classList.add('active');
+}
+
+/** 开场对白：点击「出发」后逐句显示，结束后进入地图 */
+const INTRO_PROLOGUE_LINES = memorialSplitToSentences([
+  '我叫开心，姐姐希望我是只开心的小狗。',
+  '那天好痛，一阵白光后，我来到了这里。',
+  '小伙伴说，要积累好多「愿力」才能再见到姐姐。',
+  '我好想再见到她，跟她说说话。',
+  '你可以帮帮我吗？'
+].join('\n'));
+let introPrologueIndex = 0;
+let introPrologueTyper = null;
+/** 开场对白是否已完整看过一次；从选关返回主界面后再点「出发」应直接进入选关，不再重播 */
+let introPrologueCompletedOnce = false;
+
+/** 将多行/多句文本拆成「每句话一段」 */
+function memorialSplitToSentences(text) {
+  const out = [];
+  String(text).split(/\n+/).forEach((paragraph) => {
+    const p = paragraph.trim();
+    if (!p) return;
+    const parts = p.match(/[^。！？!?]+[。！？!?]?/g);
+    if (parts) {
+      parts.forEach((s) => {
+        const t = s.trim();
+        if (t) out.push(t);
+      });
+    } else {
+      out.push(p);
+    }
+  });
+  return out;
+}
+
+function clearIntroPrologueTyper() {
+  if (introPrologueTyper) {
+    clearInterval(introPrologueTyper);
+    introPrologueTyper = null;
+  }
+}
+
+function typeIntroLine(fullText, el, onDone) {
+  clearIntroPrologueTyper();
+  el.textContent = '';
+  if (!fullText) {
+    el.classList.remove('typing');
+    if (onDone) onDone();
+    return;
+  }
+  el.classList.add('typing');
+  let i = 0;
+  introPrologueTyper = setInterval(() => {
+    if (i < fullText.length) {
+      el.textContent += fullText[i];
+      i++;
+    }
+    if (i >= fullText.length) {
+      clearInterval(introPrologueTyper);
+      introPrologueTyper = null;
+      el.classList.remove('typing');
+      if (onDone) onDone();
+    }
+  }, 42);
+}
+
+function beginIntroPrologue() {
+  if (introPrologueCompletedOnce) {
+    MemorialBgm.start();
+    showMap();
+    return;
+  }
+  const btn = $('intro-start-btn');
+  const prologue = $('intro-prologue');
+  const dogWrap = $('intro-dog-wrap');
+  const content = $('intro-content');
+  if (!btn || !prologue || !dogWrap) {
+    showMap();
+    return;
+  }
+  btn.disabled = true;
+  introPrologueIndex = 0;
+  MemorialBgm.start();
+  content.classList.add('intro-dimmed');
+  void dogWrap.offsetWidth;
+  dogWrap.classList.add('intro-dog-visible');
+  dogWrap.setAttribute('aria-hidden', 'false');
+  prologue.classList.add('show');
+  const textEl = $('intro-prologue-text');
+  const hintEl = $('intro-prologue-hint');
+  const nextBtn = $('intro-prologue-btn');
+  if (hintEl) hintEl.textContent = '点击继续';
+  if (nextBtn) nextBtn.textContent = '继续 ▶';
+  typeIntroLine(INTRO_PROLOGUE_LINES[0], textEl, null);
+}
+
+function advanceIntroPrologue() {
+  const textEl = $('intro-prologue-text');
+  const full = INTRO_PROLOGUE_LINES[introPrologueIndex];
+  if (textEl && textEl.textContent.length < full.length) {
+    clearIntroPrologueTyper();
+    textEl.textContent = full;
+    textEl.classList.remove('typing');
+    return;
+  }
+  introPrologueIndex++;
+  if (introPrologueIndex >= INTRO_PROLOGUE_LINES.length) {
+    finishIntroPrologue();
+    return;
+  }
+  const hintEl = $('intro-prologue-hint');
+  const nextBtn = $('intro-prologue-btn');
+  const isLast = introPrologueIndex === INTRO_PROLOGUE_LINES.length - 1;
+  if (hintEl) hintEl.textContent = isLast ? '和开心一起出发吧' : '点击继续';
+  if (nextBtn) nextBtn.textContent = isLast ? '好呀，我们一起！ ▶' : '继续 ▶';
+  typeIntroLine(INTRO_PROLOGUE_LINES[introPrologueIndex], textEl, null);
+}
+
+function finishIntroPrologue() {
+  clearIntroPrologueTyper();
+  const prologue = $('intro-prologue');
+  const btn = $('intro-start-btn');
+  const content = $('intro-content');
+  if (prologue) prologue.classList.remove('show');
+  if (content) content.classList.remove('intro-dimmed');
+  if (btn) btn.disabled = false;
+  memorialPersistIntroDone();
+  showMap();
+}
+
+const TOTAL_LEVELS = 7;
+/* 相对「星座图」盒子的百分比（与 map_constellation_levels.png 上星心对齐） */
+const LEVEL_STAR_POS = [
+  { left: 13, top: 75 }, { left: 26, top: 59 }, { left: 43, top: 53 },
+  { left: 60, top: 47 },
+  { left: 73, top: 56 }, /* 第五颗星：沿犬身路径第 5 颗 → 唤醒开心 */
+  { left: 90, top: 38 }, /* 第六颗星 → 点亮河灯 */
+  { left: 85, top: 22 }
+];
+let mapTipTimer = null;
+
+function applyMapStarPositions() {
+  for (let i = 1; i <= TOTAL_LEVELS; i++) {
+    const btn = $('star-level-' + i);
+    const p = LEVEL_STAR_POS[i - 1];
+    if (btn && p) {
+      btn.style.left = p.left + '%';
+      btn.style.top = p.top + '%';
+    }
+  }
+}
+
+function showMapTip(msg) {
+  const el = $('map-tip');
+  if (!el) return;
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(mapTipTimer);
+  mapTipTimer = setTimeout(() => { el.classList.remove('show'); }, 1600);
+}
+
+function getCurrentProgressLevel() {
+  for (let i = 1; i <= TOTAL_LEVELS; i++) {
+    if (!completedTasks.has(i)) return i;
+  }
+  return TOTAL_LEVELS;
+}
+
+function isLevelUnlocked(n) {
+  if (MEMORIAL_DEBUG_UNLOCK_ALL_LEVELS) {
+    return n >= 1 && n <= TOTAL_LEVELS;
+  }
+  if (n === 7) {
+    return completedTasks.has(7) || [1, 2, 3, 4, 5, 6].every((i) => completedTasks.has(i));
+  }
+  if (n === 1) return true;
+  if (completedTasks.has(n)) return true;
+  return completedTasks.has(n - 1);
+}
+
+function tryStartLevel(n) {
+  if (n < 1 || n > TOTAL_LEVELS) return;
+  if (!isLevelUnlocked(n)) {
+    showMapTip(n === 7 ? '请先点亮前六颗星星 ✨' : '请先完成上一关哦 🐾');
+    return;
+  }
+  if (n === 7) {
+    startEnding();
+    return;
+  }
+  startTask(n);
+}
+
+function updateMapDogAvatar() {
+  const av = $('map-dog-avatar');
+  if (!av) return;
+  const idx = getCurrentProgressLevel() - 1;
+  const pos = LEVEL_STAR_POS[Math.max(0, Math.min(LEVEL_STAR_POS.length - 1, idx))];
+  av.style.left = pos.left + '%';
+  av.style.top = pos.top + '%';
+}
+
+function backToIntro() {
+  stopAllLoops();
+  showScreen('screen-intro');
+  runStarfieldOnCanvas('intro-canvas', 'intro');
+  updateMerit();
+}
+
+function backFromEnding() {
+  stopAllLoops();
+  MemorialBgm.switchToDefault();
+  const dlg = $('ending-dialog');
+  if (dlg) dlg.style.display = 'none';
+  const tag = $('ending-tagline');
+  if (tag) {
+    tag.classList.remove('show');
+    tag.textContent = '';
+    tag.style.display = 'none';
+  }
+  const dim = $('ending-dim-layer');
+  if (dim) {
+    dim.classList.remove('on');
+    dim.style.opacity = '';
+    dim.style.transition = '';
+  }
+  const out = $('ending-outro');
+  if (out) out.classList.remove('show');
+  const well = $('ending-well-btn');
+  if (well) {
+    well.hidden = true;
+    well.onclick = null;
+  }
+  showMap();
+}
+
+function showMap() {
+  if (loops.intro) {
+    cancelAnimationFrame(loops.intro);
+    delete loops.intro;
+  }
+  showScreen('screen-map');
+  applyMapStarPositions();
+  updateMerit();
+  runStarfieldOnCanvas('map-star-canvas', 'mapStars');
+}
+
+function backToMap() {
+  stopAllLoops();
+  showMap();
+}
+
+function updateMerit() {
+  meritCount = completedTasks.size;
+  const pct = Math.min(100, (meritCount / TOTAL_LEVELS) * 100);
+  const mf = $('merit-fill');
+  const mt = $('merit-text');
+  if (mf) mf.style.width = pct + '%';
+  if (mt) mt.textContent = meritCount + ' / ' + TOTAL_LEVELS;
+  for (let i = 1; i <= TOTAL_LEVELS; i++) {
+    const btn = $('star-level-' + i);
+    if (!btn) continue;
+    const lit = completedTasks.has(i);
+    const locked = !isLevelUnlocked(i) && !lit;
+    btn.classList.toggle('lit', lit);
+    btn.classList.toggle('locked', locked);
+  }
+  updateMapDogAvatar();
+  const introReset = $('intro-reset-progress-btn');
+  if (introReset) introReset.style.display = completedTasks.has(7) ? '' : 'none';
+}
+
+function memorialRestoreFromStorage() {
+  try {
+    introPrologueCompletedOnce = localStorage.getItem(MEMORIAL_LS_INTRO) === '1';
+    completedTasks.clear();
+    const raw = localStorage.getItem(MEMORIAL_LS_LEVELS);
+    if (!raw) return;
+    const arr = JSON.parse(raw);
+    if (!Array.isArray(arr)) return;
+    arr.forEach((n) => {
+      if (typeof n === 'number' && n >= 1 && n <= 7) completedTasks.add(n);
+    });
+  } catch (e) {}
+}
+
+/** 通关后清空本地进度与开场已读，下次可再次体验完整开场 */
+function resetMemorialFullProgress() {
+  if (!completedTasks.has(7)) return;
+  if (!confirm('要清空全部进度并从头开始吗？开心的开场对白会再次出现。')) return;
+  completedTasks.clear();
+  introPrologueCompletedOnce = false;
+  try {
+    localStorage.removeItem(MEMORIAL_LS_INTRO);
+    localStorage.removeItem(MEMORIAL_LS_LEVELS);
+  } catch (e) {}
+  clearIntroPrologueTyper();
+  introPrologueIndex = 0;
+  const prologue = $('intro-prologue');
+  const btn = $('intro-start-btn');
+  const content = $('intro-content');
+  const dogWrap = $('intro-dog-wrap');
+  const textEl = $('intro-prologue-text');
+  if (prologue) prologue.classList.remove('show');
+  if (content) content.classList.remove('intro-dimmed');
+  if (btn) btn.disabled = false;
+  if (dogWrap) {
+    dogWrap.classList.remove('intro-dog-visible');
+    dogWrap.setAttribute('aria-hidden', 'false');
+  }
+  if (textEl) {
+    textEl.textContent = '';
+    textEl.classList.remove('typing');
+  }
+  stopAllLoops();
+  showScreen('screen-intro');
+  runStarfieldOnCanvas('intro-canvas', 'intro');
+  updateMerit();
+}
+
+function finishTask(n) {
+  completedTasks.add(n);
+  memorialSaveLevels();
+  stopAllLoops();
+  showMap();
+  updateMerit();
+}
+
+let loops = {};
+function stopAllLoops() {
+  Object.keys(loops).forEach((k) => {
+    cancelAnimationFrame(loops[k]);
+    delete loops[k];
+  });
+  const c6 = $('canvas6');
+  if (c6 && c6._task6AC) {
+    try {
+      c6._task6AC.abort();
+    } catch (e) {}
+    c6._task6AC = null;
+  }
+  const c7 = $('canvas7');
+  if (c7 && c7._task7AC) {
+    try {
+      c7._task7AC.abort();
+    } catch (e) {}
+    c7._task7AC = null;
+  }
+}
+
+// ===== 粒子 & 特效 =====
+function addStars(canvas) {
+  const ctx = canvas.getContext('2d');
+  const stars = [];
+  for(let i=0;i<60;i++) {
+    stars.push({ x: Math.random()*W, y: Math.random()*H, r: Math.random()*1.5+0.5, t: Math.random()*Math.PI*2 });
+  }
+  return stars;
+}
+
+function runStarfieldOnCanvas(canvasId, loopKey) {
+  const canvas = $(canvasId);
+  if (!canvas) return;
+  if (loops[loopKey]) {
+    cancelAnimationFrame(loops[loopKey]);
+    delete loops[loopKey];
+  }
+  const ctx = canvas.getContext('2d');
+  canvas.width = W;
+  canvas.height = H;
+  const stars = [];
+  for (let i = 0; i < 80; i++) {
+    stars.push({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      r: Math.random() * 1.5 + 0.3,
+      t: Math.random() * Math.PI * 2,
+      s: Math.random() * 0.05 + 0.02
+    });
+  }
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    stars.forEach((s) => {
+      s.t += s.s;
+      const a = 0.4 + 0.6 * Math.abs(Math.sin(s.t));
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,215,0,${a})`;
+      ctx.fill();
+    });
+    loops[loopKey] = requestAnimationFrame(draw);
+  }
+  loops[loopKey] = requestAnimationFrame(draw);
+}
+
+// ===== 任务一：接骨头 =====
+function startTask1() {
+  const canvas = $('canvas1');
+  const ctx = canvas.getContext('2d');
+  canvas.width = W; canvas.height = H;
+  ctx.imageSmoothingEnabled = false;
+  let score = 0, miss = 0;
+  let bones = [];
+  let dogX = W/2, dogY = H - 80;
+  let keys = {};
+  let mouseX = W/2;
+  let frame = 0;
+  let done = false;
+
+  $('score1').textContent = '0';
+  $('miss1').textContent = '0';
+  $('retry1').classList.remove('show');
+  $('complete1').classList.remove('show');
+
+  function spawnBone() {
+    bones.push({
+      x: 40 + Math.random() * (W-80),
+      y: -20,
+      vy: 1.5 + Math.random() * 2,
+      r: Math.random() * Math.PI * 2,
+      collected: false
+    });
+  }
+
+  function drawBone(ctx, x, y, r) {
+    ctx.save(); ctx.translate(x,y); ctx.rotate(r);
+    ctx.fillStyle = '#fffde0'; ctx.strokeStyle = '#d4af37'; ctx.lineWidth = 1;
+    // 骨头形状（简化像素感）
+    ctx.fillRect(-10,-3,20,6);
+    [[-10,-3],[-10,3],[10,-3],[10,3]].forEach(([bx,by]) => {
+      ctx.beginPath(); ctx.arc(bx,by,4,0,Math.PI*2);
+      ctx.fill(); ctx.stroke();
+    });
+    // 发光
+    ctx.fillStyle = `rgba(255,220,0,${0.5 + 0.5*Math.abs(Math.sin(frame*0.08))})`;
+    ctx.beginPath(); ctx.arc(0,0,3,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+  }
+
+  function drawCloud(ctx, x, y, w, h) {
+    ctx.fillStyle = 'rgba(255,255,255,0.7)';
+    ctx.beginPath(); ctx.ellipse(x,y,w,h,0,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(x-w*0.4,y+h*0.1,w*0.6,h*0.7,0,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(x+w*0.4,y+h*0.1,w*0.6,h*0.7,0,0,Math.PI*2); ctx.fill();
+  }
+
+  const clouds = [];
+  for(let i=0;i<5;i++) clouds.push({ x: Math.random()*W, y: 60+Math.random()*200, w: 40+Math.random()*50, h: 20+Math.random()*15, speed: 0.2+Math.random()*0.3 });
+  const stars = addStars(canvas);
+
+  let boneTimer = 0;
+
+  document.addEventListener('keydown', e => {
+    keys[e.key] = true;
+    if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)) e.preventDefault();
+  });
+  document.addEventListener('keyup', e => { keys[e.key] = false; });
+  canvas.addEventListener('mousemove', e => {
+    const rect = canvas.getBoundingClientRect();
+    mouseX = (e.clientX - rect.left) * (W / rect.width);
+  });
+  canvas.addEventListener('touchmove', e => {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    mouseX = (e.touches[0].clientX - rect.left) * (W / rect.width);
+  }, { passive: false });
+
+  function loop() {
+    if(done) return;
+    frame++;
+    ctx.clearRect(0,0,W,H);
+
+    // 背景渐变
+    const grad = ctx.createLinearGradient(0,0,0,H);
+    grad.addColorStop(0,'#6ab4e8'); grad.addColorStop(0.6,'#b0e2ff'); grad.addColorStop(1,'#c8e8b8');
+    ctx.fillStyle = grad; ctx.fillRect(0,0,W,H);
+
+    // 云
+    clouds.forEach(c => {
+      c.x += c.speed;
+      if(c.x > W+80) c.x = -80;
+      drawCloud(ctx, c.x, c.y, c.w, c.h);
+    });
+
+    // 云间小径
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.beginPath(); ctx.ellipse(W/2, H-40, 200, 30, 0, 0, Math.PI*2); ctx.fill();
+
+    // 地面
+    ctx.fillStyle = '#c8e8b8';
+    ctx.fillRect(0, H-60, W, 60);
+    ctx.fillStyle = '#7ec850';
+    ctx.fillRect(0, H-64, W, 8);
+
+    // 星星
+    stars.forEach(s => {
+      s.t += 0.04;
+      const a = 0.3+0.7*Math.abs(Math.sin(s.t));
+      ctx.beginPath(); ctx.arc(s.x, s.y*0.5, s.r, 0,Math.PI*2);
+      ctx.fillStyle = `rgba(255,215,0,${a})`; ctx.fill();
+    });
+
+    // 控制小狗
+    const speed = 5;
+    if(keys['ArrowLeft']) dogX = Math.max(30, dogX-speed);
+    if(keys['ArrowRight']) dogX = Math.min(W-30, dogX+speed);
+    // 鼠标/触摸平滑跟随
+    dogX += (mouseX - dogX) * 0.12;
+    dogX = Math.max(30, Math.min(W-30, dogX));
+
+    // 生成骨头
+    boneTimer++;
+    if(boneTimer > 60) { spawnBone(); boneTimer = 0 + Math.floor(Math.random()*20); }
+
+    // 更新骨头
+    bones = bones.filter(b => {
+      if(b.collected) return false;
+      b.y += b.vy;
+      b.r += 0.04;
+      // 碰撞检测
+      const dx = b.x - dogX, dy = b.y - dogY;
+      if(Math.sqrt(dx*dx+dy*dy) < 35) {
+        score++;
+        playMemorialSfx('pickup');
+        $('score1').textContent = score;
+        if(score >= 10) { done = true; setTimeout(() => $('complete1').classList.add('show'), 300); }
+        return false;
+      }
+      if(b.y > H+20) {
+        miss++;
+        playMemorialSfx('miss');
+        $('miss1').textContent = miss;
+        if(miss >= 3 && !done) { done = true; setTimeout(() => $('retry1').classList.add('show'), 200); }
+        return false;
+      }
+      drawBone(ctx, b.x, b.y, b.r);
+      return true;
+    });
+
+    drawLevelHappyDog(ctx, dogX, dogY + 10, frame, { scale: 1.42, halo: true, bobPhase: frame * 0.2 });
+
+    loops['task1'] = requestAnimationFrame(loop);
+  }
+  loops['task1'] = requestAnimationFrame(loop);
+}
+
+function resetTask1() {
+  $('retry1').classList.remove('show');
+  startTask1();
+}
+
+// ===== 任务二：点亮河灯 =====
+function startTask2() {
+  const canvas = $('canvas2');
+  const ctx = canvas.getContext('2d');
+  canvas.width = W; canvas.height = H;
+  ctx.imageSmoothingEnabled = false;
+
+  const lampData = [
+    { x:60,  y:440, icon:'🍚', label:'狗碗', msg:'吃完饭了！要和姐姐出去散步，好开心！' },
+    { x:140, y:480, icon:'🐕', label:'牵引绳', msg:'姐姐牵着我走，我走得很威风的！' },
+    { x:230, y:430, icon:'🏠', label:'狗窝', msg:'窝窝软软的，睡在里面最舒服了~' },
+    { x:320, y:475, icon:'⭕', label:'黄色圈圈', msg:'圈圈是我的！谁也不能抢！' },
+    { x:415, y:440, icon:'🎾', label:'球球', msg:'最喜欢追球球了，追完还要姐姐捡！' }
+  ];
+  const litLamps = new Set();
+  let activeLamp = null;
+  let holdTimer = null;
+  let holdProgress = 0;
+  let frame = 0;
+  let meteorsSent = false;
+  let done = false;
+  /** 0~1，随点亮盏数增加，用于姐姐与开心沿堤从左走到右 */
+  let walkProgressSmooth = 0;
+
+  const meteors = [];
+  $('lit-count').textContent = '0';
+  $('lamp-bubble').style.display = 'none';
+  $('love-container').innerHTML = '';
+
+  function drawLamp(ctx, lx, ly, lit, idx, frame) {
+    const glow = 0.5 + 0.5*Math.sin(frame*0.06 + idx);
+    // 灯绳
+    ctx.strokeStyle = '#888'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(lx, 280); ctx.lineTo(lx, ly-30); ctx.stroke();
+    // 灯体
+    ctx.save(); ctx.translate(lx, ly);
+    if(lit) {
+      ctx.shadowColor = '#ffdd77'; ctx.shadowBlur = 20*glow;
+      ctx.fillStyle = `rgba(255,200,0,${0.6+0.4*glow})`;
+    } else {
+      ctx.fillStyle = '#2a2a4a';
+    }
+    // 灯笼形状
+    ctx.beginPath(); ctx.ellipse(0,0,18,26,0,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle = lit ? '#ffd700' : '#444'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.ellipse(0,0,18,26,0,0,Math.PI*2); ctx.stroke();
+    // 灯笼条纹
+    ctx.strokeStyle = lit ? 'rgba(255,160,0,0.4)' : 'rgba(100,100,150,0.3)';
+    for(let i=-2;i<=2;i++) { ctx.beginPath(); ctx.moveTo(i*7,-20); ctx.lineTo(i*7,20); ctx.stroke(); }
+    // 顶部和底部
+    ctx.fillStyle = lit ? '#ff8800' : '#333'; ctx.fillRect(-8,-28,16,6); ctx.fillRect(-8,22,16,6);
+    // 流苏
+    const tassels = [-6,-2,2,6];
+    tassels.forEach(tx => {
+      ctx.strokeStyle = lit ? 'rgba(255,160,0,0.8)' : '#444'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(tx, 28); ctx.lineTo(tx + Math.sin(frame*0.08+tx)*3, 42); ctx.stroke();
+    });
+    // 图标文字
+    ctx.shadowBlur = 0;
+    ctx.font = '14px serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = lit ? '#fffde0' : '#8888aa';
+    ctx.fillText(lampData[idx].icon, 0, 5);
+    ctx.restore();
+  }
+
+  function launchMeteors() {
+    for(let i=0;i<8;i++) {
+      setTimeout(() => {
+        meteors.push({ x: Math.random()*W*0.8, y: Math.random()*200, len: 60+Math.random()*80, life: 60, maxLife: 60 });
+      }, i*200);
+    }
+  }
+
+  canvas.addEventListener('click', e => {
+    if(done) return;
+    const rect = canvas.getBoundingClientRect();
+    const mx = (e.clientX-rect.left)*(W/rect.width);
+    const my = (e.clientY-rect.top)*(H/rect.height);
+    lampData.forEach((l,i) => {
+      if(litLamps.has(i)) return;
+      const dx=mx-l.x, dy=my-l.y;
+      if(Math.sqrt(dx*dx+dy*dy)<30) {
+        playMemorialSfx('tap');
+        activeLamp = i;
+        const bubble = $('lamp-bubble');
+        bubble.textContent = l.msg;
+        bubble.style.display = 'block';
+        bubble.style.left = (l.x - 20) + 'px';
+        bubble.style.top = (l.y - 100) + 'px';
+        // 显示爱心按钮
+        $('love-container').innerHTML = `
+          <button class="love-btn" id="love-btn"
+            style="left:${l.x-50}px;top:${l.y+60}px;"
+            onclick="startLoveHold(${i})">
+            长按点亮 💛
+          </button>`;
+      }
+    });
+  });
+
+  window.startLoveHold = function(idx) {
+    holdProgress = 0;
+    const btn = $('love-btn');
+    if(!btn) return;
+    let interval = setInterval(() => {
+      holdProgress++;
+      btn.textContent = '💛'.repeat(Math.ceil(holdProgress/10)) + '...';
+      if(holdProgress >= 30) {
+        clearInterval(interval);
+        litLamps.add(idx);
+        playMemorialSfx('chime');
+        $('lit-count').textContent = litLamps.size;
+        $('lamp-bubble').style.display = 'none';
+        $('love-container').innerHTML = '';
+        activeLamp = null;
+        if(litLamps.size === 5 && !done) {
+          done = true;
+          launchMeteors();
+          setTimeout(() => $('complete2').classList.add('show'), 2000);
+        }
+      }
+    }, 100);
+    btn.addEventListener('mouseup', () => clearInterval(interval));
+    btn.addEventListener('touchend', () => clearInterval(interval));
+  };
+
+  function loop() {
+    frame++;
+    ctx.clearRect(0,0,W,H);
+
+    const walkTarget = litLamps.size / 5;
+    walkProgressSmooth += (walkTarget - walkProgressSmooth) * 0.08;
+    if (walkTarget === 0) walkProgressSmooth *= 0.94;
+
+    // 背景
+    const grad = ctx.createLinearGradient(0,0,0,H);
+    grad.addColorStop(0,'#1a1a3e'); grad.addColorStop(0.5,'#2d2d5e'); grad.addColorStop(1,'#0d2010');
+    ctx.fillStyle = grad; ctx.fillRect(0,0,W,H);
+
+    // 繁星
+    for(let i=0;i<40;i++) {
+      const sx = (i*53+7)%W, sy = (i*37+13)%280;
+      const a = 0.4+0.5*Math.abs(Math.sin(frame*0.03+i));
+      ctx.beginPath(); ctx.arc(sx,sy,0.8+Math.random()*0.5,0,Math.PI*2);
+      ctx.fillStyle = `rgba(255,255,200,${a})`; ctx.fill();
+    }
+
+    // 月亮
+    ctx.fillStyle = '#fffacd';
+    ctx.beginPath(); ctx.arc(400, 60, 28, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#f0e68c'; ctx.lineWidth = 0; ctx.strokeStyle = 'transparent';
+
+    // 流星
+    meteors.forEach((m,i) => {
+      m.life--;
+      const alpha = m.life/m.maxLife;
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      const grad2 = ctx.createLinearGradient(m.x,m.y,m.x+m.len*0.7,m.y+m.len*0.4);
+      grad2.addColorStop(0,'rgba(255,255,200,0.9)'); grad2.addColorStop(1,'transparent');
+      ctx.strokeStyle = grad2; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(m.x,m.y); ctx.lineTo(m.x+m.len*0.7, m.y+m.len*0.4); ctx.stroke();
+      ctx.globalAlpha = 1; ctx.restore();
+    });
+
+    // 河流
+    const riverGrad = ctx.createLinearGradient(0,300,0,H);
+    riverGrad.addColorStop(0,'#1a4a6a'); riverGrad.addColorStop(1,'#0d3020');
+    ctx.fillStyle = riverGrad; ctx.fillRect(0,300,W,H-300);
+    // 水波
+    ctx.strokeStyle = 'rgba(100,180,220,0.2)'; ctx.lineWidth = 1;
+    for(let r=0;r<4;r++) {
+      const ry = 340 + r*40 + Math.sin(frame*0.03+r)*3;
+      ctx.beginPath(); ctx.moveTo(0,ry);
+      for(let x=0;x<W;x+=10) { ctx.lineTo(x, ry+Math.sin((x+frame*2)*0.05)*4); }
+      ctx.stroke();
+    }
+
+    // 河岸
+    ctx.fillStyle = '#1a3a2a'; ctx.fillRect(0,290,W,16);
+    ctx.fillStyle = '#2a5a3a'; ctx.fillRect(0,286,W,8);
+
+    // 姐姐与开心沿堤散步：未点灯时在左侧，五盏全亮走到右侧（姐姐略前、开心在后）
+    const footY = 291;
+    const pathMin = 52;
+    const pathMax = W - 48;
+    const sisterX = pathMin + walkProgressSmooth * (pathMax - pathMin);
+    const dogX = sisterX - 30;
+    drawLevelHappyDog(ctx, dogX, footY, frame, {});
+    drawLevelSister(ctx, sisterX, footY, frame, {});
+
+    // 灯笼
+    lampData.forEach((l,i) => drawLamp(ctx, l.x, l.y, litLamps.has(i), i, frame));
+
+    // 灯在水中倒影
+    lampData.forEach((l,i) => {
+      if(!litLamps.has(i)) return;
+      ctx.save(); ctx.globalAlpha = 0.3+0.2*Math.sin(frame*0.05+i);
+      ctx.scale(1,-1); ctx.translate(0,-H);
+      const reflY = H - (l.y - 300);
+      // 简单光点
+      ctx.beginPath(); ctx.arc(l.x, reflY, 4, 0,Math.PI*2);
+      ctx.fillStyle = 'rgba(255,200,0,0.6)'; ctx.fill();
+      ctx.restore();
+    });
+
+    loops['task2'] = requestAnimationFrame(loop);
+  }
+  loops['task2'] = requestAnimationFrame(loop);
+}
+
+// ===== 任务四：森林迷宫 =====
+function startTask3() {
+  const canvas = $('canvas3');
+  const co = $('complete3');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  canvas.width = W; canvas.height = H;
+  ctx.imageSmoothingEnabled = false;
+
+  if (canvas._task3AC) {
+    try { canvas._task3AC.abort(); } catch (e) {}
+    canvas._task3AC = null;
+  }
+  const ac = new AbortController();
+  canvas._task3AC = ac;
+  const sig = { signal: ac.signal };
+
+  if (loops.task3) {
+    cancelAnimationFrame(loops.task3);
+    delete loops.task3;
+  }
+  if (co) co.classList.remove('show');
+
+  let round = 0; // 0=Piglet, 1=Cat, 2=Turtle
+  let dogGridX = 1;
+  let dogGridY = 1;
+  let animalGridX = 5;
+  let animalGridY = 5;
+  let animalType = 'pig';
+  let animalColor = '#ffb6c1';
+  let animalJoined = false;
+  let exitX = 10;
+  let exitY = 11;
+  
+  let prevDogGridX = 1;
+  let prevDogGridY = 1;
+  let frame = 0;
+  let done = false;
+
+  const MAZE_COLS = 12;
+  const MAZE_ROWS = 13;
+  const MAZE_CELL = 34;
+  const MAZE_HUD_H = 44;
+  const MAZE_BOARD_PAD = 14;
+  const MAZE_H = MAZE_ROWS * MAZE_CELL;
+  const MAZE_OX = Math.floor((W - MAZE_COLS * MAZE_CELL) / 2);
+  const MAZE_OY = MAZE_HUD_H + Math.max(12, Math.floor((H - MAZE_HUD_H - MAZE_H - MAZE_BOARD_PAD) / 2));
+
+  function setMazeProgressLabel(text) {
+    const el = $('puzzle-count');
+    if (el) el.textContent = text;
+  }
+
+  function mazeCellCenter(c, r) {
+    return {
+      x: MAZE_OX + c * MAZE_CELL + MAZE_CELL / 2,
+      y: MAZE_OY + r * MAZE_CELL + MAZE_CELL / 2
+    };
+  }
+
+  function mazeCellOrigin(c, r) {
+    return {
+      px: MAZE_OX + c * MAZE_CELL,
+      py: MAZE_OY + r * MAZE_CELL
+    };
+  }
+
+  const MAZE_MAPS = [
+    // Round 1 (Piglet)
+    [
+      [1,1,1,1,1,1,1,1,1,1,1,1],
+      [1,0,0,0,0,1,0,0,0,0,0,1],
+      [1,0,1,1,0,1,0,1,1,1,0,1],
+      [1,0,1,0,0,0,0,0,0,1,0,1],
+      [1,0,1,0,1,1,1,1,0,1,0,1],
+      [1,0,0,0,1,0,0,1,0,1,0,1],
+      [1,1,1,0,1,0,0,1,0,1,0,1],
+      [1,0,0,0,0,0,0,0,0,0,0,1],
+      [1,0,1,1,1,1,1,1,1,1,0,1],
+      [1,0,1,0,0,0,0,0,0,1,0,1],
+      [1,0,1,0,1,1,1,1,0,1,0,1],
+      [1,0,0,0,1,0,0,0,0,0,0,1],
+      [1,1,1,1,1,1,1,1,1,1,1,1]
+    ],
+    // Round 2 (Cat)
+    [
+      [1,1,1,1,1,1,1,1,1,1,1,1],
+      [1,0,0,0,0,0,1,0,0,0,0,1],
+      [1,0,1,1,1,0,1,0,1,1,0,1],
+      [1,0,1,0,0,0,0,0,1,0,0,1],
+      [1,0,1,0,1,1,1,1,1,0,1,1],
+      [1,0,0,0,1,0,0,0,1,0,0,1],
+      [1,1,1,0,1,0,1,0,1,1,0,1],
+      [1,0,0,0,0,0,1,0,0,1,0,1],
+      [1,0,1,1,1,1,1,1,0,1,0,1],
+      [1,0,1,0,0,0,0,1,0,1,0,1],
+      [1,0,0,0,1,1,0,0,0,0,0,1],
+      [1,0,0,0,0,1,1,1,1,1,0,1],
+      [1,1,1,1,1,1,1,1,1,1,1,1]
+    ],
+    // Round 3 (Turtle)
+    [
+      [1,1,1,1,1,1,1,1,1,1,1,1],
+      [1,0,0,0,0,1,0,0,0,0,0,1],
+      [1,0,1,1,0,1,0,1,1,1,0,1],
+      [1,0,1,0,0,0,0,1,0,1,0,1],
+      [1,0,1,0,1,1,1,1,0,1,0,1],
+      [1,0,0,0,0,0,0,0,0,1,0,1],
+      [1,1,1,1,1,1,1,1,0,1,0,1],
+      [1,0,0,0,0,0,0,1,0,0,0,1],
+      [1,0,1,1,1,1,0,1,1,1,0,1],
+      [1,0,1,0,0,1,0,0,0,1,0,1],
+      [1,0,1,0,0,1,1,1,0,1,0,1],
+      [1,0,0,0,0,0,0,0,0,0,0,1],
+      [1,1,1,1,1,1,1,1,1,1,1,1]
+    ]
+  ];
+
+  setMazeProgressLabel('0/3');
+
+  function mazeReachable(grid, sx, sy, tx, ty) {
+    const R = grid.length;
+    const C = grid[0].length;
+    const q = [[sx, sy]];
+    const vis = new Set([sx + ',' + sy]);
+    const dirs = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+    while (q.length) {
+      const [x, y] = q.shift();
+      if (x === tx && y === ty) return true;
+      for (const [dx, dy] of dirs) {
+        const nx = x + dx;
+        const ny = y + dy;
+        const k = nx + ',' + ny;
+        if (nx >= 0 && nx < C && ny >= 0 && ny < R && grid[ny][nx] === 0 && !vis.has(k)) {
+          vis.add(k);
+          q.push([nx, ny]);
+        }
+      }
+    }
+    return false;
+  }
+
+  function placeAnimalSpawn(grid, preferredList) {
+    if (preferredList) {
+      for (let i = 0; i < preferredList.length; i++) {
+        const cx = preferredList[i][0];
+        const cy = preferredList[i][1];
+        if (
+          cy >= 0 && cy < grid.length && cx >= 0 && cx < grid[0].length &&
+          grid[cy][cx] === 0 &&
+          mazeReachable(grid, dogGridX, dogGridY, cx, cy) &&
+          !(cx === dogGridX && cy === dogGridY)
+        ) {
+          animalGridX = cx;
+          animalGridY = cy;
+          return;
+        }
+      }
+    }
+    let bestX = animalGridX;
+    let bestY = animalGridY;
+    let bestDist = -1;
+    for (let ry = 1; ry < grid.length - 1; ry++) {
+      for (let cx = 1; cx < grid[0].length - 1; cx++) {
+        if (grid[ry][cx] !== 0) continue;
+        if (cx === dogGridX && cy === dogGridY) continue;
+        if (!mazeReachable(grid, dogGridX, dogGridY, cx, ry)) continue;
+        const d = Math.abs(cx - exitX) + Math.abs(ry - exitY);
+        if (d > bestDist) {
+          bestDist = d;
+          bestX = cx;
+          bestY = ry;
+        }
+      }
+    }
+    animalGridX = bestX;
+    animalGridY = bestY;
+  }
+
+  function initRound(r) {
+    round = r;
+    animalJoined = false;
+    const grid = MAZE_MAPS[round];
+    if (round === 0) {
+      dogGridX = 1; dogGridY = 1;
+      animalType = 'pig'; animalColor = '#ffb6c1';
+      exitX = 10; exitY = 11;
+      placeAnimalSpawn(grid, [[4, 1], [3, 1], [2, 1], [1, 2], [4, 3], [3, 3]]);
+    } else if (round === 1) {
+      dogGridX = 1; dogGridY = 11;
+      animalType = 'cat'; animalColor = '#f4a460';
+      exitX = 10; exitY = 1;
+      placeAnimalSpawn(grid, [[1, 1], [2, 1], [3, 1], [1, 2], [2, 2]]);
+    } else {
+      dogGridX = 1; dogGridY = 1;
+      animalType = 'turtle'; animalColor = '#5a8a5a';
+      exitX = 10; exitY = 11;
+      placeAnimalSpawn(grid, [[1, 2], [2, 1], [3, 1], [1, 3], [2, 3]]);
+    }
+    prevDogGridX = dogGridX;
+    prevDogGridY = dogGridY;
+    setMazeProgressLabel(`${round}/3`);
+  }
+
+  initRound(0);
+
+  function moveDog(dx, dy) {
+    if (done) return;
+    const nx = dogGridX + dx;
+    const ny = dogGridY + dy;
+    const grid = MAZE_MAPS[round];
+    if (nx >= 0 && nx < MAZE_COLS && ny >= 0 && ny < MAZE_ROWS && grid[ny][nx] === 0) {
+      prevDogGridX = dogGridX;
+      prevDogGridY = dogGridY;
+      dogGridX = nx;
+      dogGridY = ny;
+
+      if (!animalJoined) {
+        if (dogGridX === animalGridX && dogGridY === animalGridY) {
+          animalJoined = true;
+          playMemorialSfx('pickup');
+        }
+      } else {
+        animalGridX = prevDogGridX;
+        animalGridY = prevDogGridY;
+        
+        if (dogGridX === exitX && dogGridY === exitY) {
+          playMemorialSfx('chime');
+          if (round < 2) {
+            initRound(round + 1);
+          } else {
+            done = true;
+            setMazeProgressLabel('3/3');
+            setTimeout(() => {
+              if (co) co.classList.add('show');
+            }, 600);
+          }
+        }
+      }
+    }
+  }
+
+  const keyHandler = e => {
+    if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
+      e.preventDefault();
+      if (e.key === 'ArrowLeft') moveDog(-1, 0);
+      else if (e.key === 'ArrowRight') moveDog(1, 0);
+      else if (e.key === 'ArrowUp') moveDog(0, -1);
+      else if (e.key === 'ArrowDown') moveDog(0, 1);
+    }
+  };
+  document.addEventListener('keydown', keyHandler, sig);
+
+  function toCanvas(cx, cy) {
+    const rect = canvas.getBoundingClientRect();
+    return [
+      (cx - rect.left) * (W / rect.width),
+      (cy - rect.top) * (H / rect.height)
+    ];
+  }
+
+  const clickHandler = e => {
+    const [mx, my] = toCanvas(e.clientX, e.clientY);
+    const dogC = mazeCellCenter(dogGridX, dogGridY);
+    const dx = mx - dogC.x;
+    const dy = my - dogC.y;
+    const thresh = MAZE_CELL * 0.42;
+    if (Math.abs(dx) > Math.abs(dy)) {
+      if (dx > thresh) moveDog(1, 0);
+      else if (dx < -thresh) moveDog(-1, 0);
+    } else {
+      if (dy > thresh) moveDog(0, 1);
+      else if (dy < -thresh) moveDog(0, -1);
+    }
+  };
+  canvas.addEventListener('click', clickHandler, sig);
+  canvas.addEventListener('touchstart', e => {
+    e.preventDefault();
+    const t = e.touches[0];
+    const [mx, my] = toCanvas(t.clientX, t.clientY);
+    const dogC = mazeCellCenter(dogGridX, dogGridY);
+    const dx = mx - dogC.x;
+    const dy = my - dogC.y;
+    const thresh = MAZE_CELL * 0.42;
+    if (Math.abs(dx) > Math.abs(dy)) {
+      if (dx > thresh) moveDog(1, 0);
+      else if (dx < -thresh) moveDog(-1, 0);
+    } else {
+      if (dy > thresh) moveDog(0, 1);
+      else if (dy < -thresh) moveDog(0, -1);
+    }
+  }, { signal: ac.signal, passive: false });
+
+  function drawMazePathTile(ctx, px, py, c, r) {
+    const alt = (c + r) % 2;
+    ctx.fillStyle = alt ? '#b5d88a' : '#a6cf7c';
+    ctx.fillRect(px + 1, py + 1, MAZE_CELL - 2, MAZE_CELL - 2);
+    ctx.fillStyle = 'rgba(72, 118, 48, 0.22)';
+    ctx.fillRect(px + 5, py + 7, 3, 3);
+    ctx.fillRect(px + MAZE_CELL - 10, py + MAZE_CELL - 9, 2, 2);
+  }
+
+  function drawPixelTree(ctx, px, py) {
+    const u = MAZE_CELL / 40;
+    ctx.fillStyle = '#5a4020';
+    ctx.fillRect(px + 14 * u, py + 20 * u, 6 * u, 17 * u);
+    ctx.fillStyle = '#2a5520';
+    ctx.fillRect(px + 4 * u, py + 2 * u, 28 * u, 20 * u);
+    ctx.fillStyle = '#3d8a32';
+    ctx.fillRect(px + 8 * u, py + 6 * u, 20 * u, 12 * u);
+    ctx.fillStyle = '#5cb848';
+    ctx.fillRect(px + 10 * u, py + 8 * u, 9 * u, 6 * u);
+  }
+
+  function drawAnimalAt(ctx, type, color, x, y, frame, waving) {
+    ctx.save(); ctx.translate(x, y);
+    const bob = waving ? Math.sin(frame * 0.15) * 2.5 : 0;
+    ctx.translate(0, bob);
+    if(type==='cat') {
+      ctx.fillStyle=color;
+      ctx.fillRect(-8,-12,16,12); // body
+      ctx.fillRect(-6,-18,12,8); // head
+      ctx.fillRect(-8,-20,4,4); ctx.fillRect(4,-20,4,4); // ears
+      ctx.fillStyle='#2a1a08';
+      ctx.fillRect(-4,-15,2,2); ctx.fillRect(2,-15,2,2); // eyes
+    } else if(type==='pig') {
+      ctx.fillStyle=color;
+      ctx.fillRect(-8,-12,16,12); // body
+      ctx.fillRect(-6,-18,12,8); // head
+      ctx.fillStyle='#d87093';
+      ctx.fillRect(-3,-14,6,3); // snout
+      ctx.fillStyle='#222';
+      ctx.fillRect(-3,-16,2,2); ctx.fillRect(1,-16,2,2); // eyes
+    } else if(type==='turtle') {
+      ctx.fillStyle=color;
+      ctx.fillRect(-8,-5,16,8); // body
+      ctx.fillStyle='#3e633e';
+      ctx.beginPath(); ctx.ellipse(0,-2,10,7,0,0,Math.PI*2); ctx.fill(); // shell
+      ctx.fillStyle=color;
+      ctx.fillRect(-7,3,4,4); ctx.fillRect(3,3,4,4); // feet
+      ctx.fillRect(-3,-8,6,4); // head
+    }
+    ctx.restore();
+  }
+
+  function drawScene() {
+    ctx.clearRect(0, 0, W, H);
+
+    const sky = ctx.createLinearGradient(0, 0, 0, H);
+    sky.addColorStop(0, '#8ecae8');
+    sky.addColorStop(0.22, '#a8dcb0');
+    sky.addColorStop(0.55, '#6faa58');
+    sky.addColorStop(1, '#4a7a3a');
+    ctx.fillStyle = sky;
+    ctx.fillRect(0, 0, W, H);
+
+    const mazeW = MAZE_COLS * MAZE_CELL;
+    ctx.fillStyle = 'rgba(55, 42, 30, 0.35)';
+    ctx.fillRect(MAZE_OX - 8, MAZE_OY - 6, mazeW + 16, MAZE_H + 12);
+    ctx.fillStyle = 'rgba(90, 68, 40, 0.55)';
+    ctx.fillRect(MAZE_OX - 4, MAZE_OY - 2, mazeW + 8, MAZE_H + 4);
+
+    ctx.fillStyle = 'rgba(38, 30, 22, 0.9)';
+    ctx.fillRect(0, 0, W, MAZE_HUD_H);
+    ctx.fillStyle = '#ffe8b8';
+    ctx.font = '13px var(--pixel)';
+    ctx.textAlign = 'center';
+    ctx.fillText('带着好朋友们一起找到正确的路吧', W / 2, 28);
+
+    const grid = MAZE_MAPS[round];
+    for (let r = 0; r < MAZE_ROWS; r++) {
+      for (let c = 0; c < MAZE_COLS; c++) {
+        const { px, py } = mazeCellOrigin(c, r);
+        if (grid[r][c] === 0) {
+          drawMazePathTile(ctx, px, py, c, r);
+          if (c === exitX && r === exitY) {
+            const pulse = 0.45 + 0.35 * Math.sin(frame * 0.08);
+            ctx.fillStyle = `rgba(255, 215, 0, ${pulse})`;
+            ctx.fillRect(px + 2, py + 2, MAZE_CELL - 4, MAZE_CELL - 4);
+            ctx.fillStyle = '#fff8dc';
+            ctx.font = 'bold 10px var(--pixel)';
+            ctx.fillText('出口', px + MAZE_CELL / 2, py + MAZE_CELL / 2 + 4);
+          }
+        }
+      }
+    }
+    for (let r = 0; r < MAZE_ROWS; r++) {
+      for (let c = 0; c < MAZE_COLS; c++) {
+        if (grid[r][c] === 1) {
+          const { px, py } = mazeCellOrigin(c, r);
+          drawPixelTree(ctx, px, py);
+        }
+      }
+    }
+
+    const animalC = mazeCellCenter(animalGridX, animalGridY);
+    drawAnimalAt(ctx, animalType, animalColor, animalC.x, animalC.y - 2, frame, !animalJoined);
+
+    const dogC = mazeCellCenter(dogGridX, dogGridY);
+    drawLevelHappyDog(ctx, dogC.x, dogC.y + MAZE_CELL * 0.14, frame, {
+      scale: 0.72,
+      bobPhase: frame * 0.1
+    });
+  }
+
+  function loop() {
+    frame++;
+    drawScene();
+    if (!done) {
+      loops.task3 = requestAnimationFrame(loop);
+    }
+  }
+  
+  loops.task3 = requestAnimationFrame(loop);
+}
+
+// ===== 任务四：飞盘游戏 =====
+function startTask4() {
+  const canvas = $('canvas4');
+  const ctx = canvas.getContext('2d');
+  canvas.width = W; canvas.height = H;
+  ctx.imageSmoothingEnabled = false;
+
+  let score = 0;
+  let frame = 0;
+  let done = false;
+  let disc = null;
+  let dogX = W/2, dogY = H-100;
+  let mouseX = W/2;
+  let ownerAlpha = 1, ownerWaving = false;
+  let petals = [];
+  /** 防止漏接时空帧反复 schedule 多个重生 */
+  let discRespawnScheduled = false;
+
+  $('disc-score').textContent = '0';
+  $('complete4').classList.remove('show');
+
+  const bgImg = new Image();
+  let bgReady = false;
+  bgImg.onload = () => { bgReady = true; };
+  bgImg.onerror = () => { bgReady = false; };
+  bgImg.src = memorialAssetSrc('task4_bg.png');
+
+  function drawTask4Background() {
+    if (bgReady && bgImg.complete && bgImg.naturalWidth > 2) {
+      const iw = bgImg.naturalWidth;
+      const ih = bgImg.naturalHeight;
+      const scale = Math.max(W / iw, H / ih);
+      const dw = iw * scale;
+      const dh = ih * scale;
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(bgImg, (W - dw) / 2, (H - dh) / 2, dw, dh);
+      return;
+    }
+    const grad = ctx.createLinearGradient(0, 0, 0, H);
+    grad.addColorStop(0, '#87ceeb');
+    grad.addColorStop(0.5, '#b0e2ff');
+    grad.addColorStop(0.6, '#90ee90');
+    grad.addColorStop(1, '#7ec850');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+    [[100, 80, 50, 22], [300, 60, 60, 25], [430, 100, 40, 18]].forEach(([cx, cy, rw, rh]) => {
+      ctx.fillStyle = 'rgba(255,255,255,0.85)';
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, rw, rh, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(cx - rw * 0.4, cy + rh * 0.2, rw * 0.6, rh * 0.7, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(cx + rw * 0.4, cy + rh * 0.2, rw * 0.6, rh * 0.7, 0, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    ctx.fillStyle = '#7ec850';
+    ctx.fillRect(0, H * 0.58, W, H * 0.42);
+    ctx.fillStyle = '#6aaa40';
+    ctx.fillRect(0, H * 0.58, W, 6);
+  }
+
+  function spawnDisc() {
+    discRespawnScheduled = false;
+    disc = {
+      x: 95, y: H - 198,
+      progress: 0,
+      p0x: 95, p0y: H - 198,
+      p1x: 200, p1y: 100,
+      p2x: W - 100, p2y: H - 120
+    };
+  }
+
+  function getBezier(t, p0,p1,p2) {
+    const x = (1-t)*(1-t)*p0.x + 2*(1-t)*t*p1.x + t*t*p2.x;
+    const y = (1-t)*(1-t)*p0.y + 2*(1-t)*t*p1.y + t*t*p2.y;
+    return {x,y};
+  }
+
+  /** 飞盘判定：大椭圆热区 + 点击狗狗附近且飞盘也在狗附近时算接住 */
+  function discHitTest(mx, my) {
+    if (!disc || done) return false;
+    const dx = mx - disc.x;
+    const dy = my - disc.y;
+    const rx = 56, ry = 32;
+    if ((dx * dx) / (rx * rx) + (dy * dy) / (ry * ry) <= 1) return true;
+    const dogCx = dogX;
+    const dogCy = dogY + 10;
+    const ddx = mx - dogCx, ddy = my - dogCy;
+    if (ddx * ddx + ddy * ddy < 86 * 86) {
+      const odx = disc.x - dogCx, ody = disc.y - dogCy;
+      if (odx * odx + ody * ody < 132 * 132) return true;
+    }
+    return false;
+  }
+
+  function tryCatchDisc() {
+    if (done || !disc) return;
+    disc = null;
+    score++;
+    playMemorialSfx('catch');
+    $('disc-score').textContent = String(score);
+    if (score >= 5) {
+      done = true;
+      ownerWaving = true;
+      setTimeout(() => $('complete4').classList.add('show'), 2000);
+    } else {
+      setTimeout(spawnDisc, 450);
+    }
+  }
+
+  function canvasToGameXY(clientX, clientY, rect) {
+    const mx = (clientX - rect.left) * (W / rect.width);
+    const my = (clientY - rect.top) * (H / rect.height);
+    return [mx, my];
+  }
+
+  let mouseDownOnCanvas = false;
+  canvas.addEventListener('mousedown', () => { mouseDownOnCanvas = true; });
+  canvas.addEventListener('mouseup', () => { mouseDownOnCanvas = false; });
+  canvas.addEventListener('mouseleave', () => { mouseDownOnCanvas = false; });
+
+  canvas.addEventListener('click', e => {
+    if (done || !disc) return;
+    const rect = canvas.getBoundingClientRect();
+    const [mx, my] = canvasToGameXY(e.clientX, e.clientY, rect);
+    if (discHitTest(mx, my)) tryCatchDisc();
+  });
+  canvas.addEventListener('mousemove', e => {
+    const rect=canvas.getBoundingClientRect();
+    mouseX=(e.clientX-rect.left)*(W/rect.width);
+    if (mouseDownOnCanvas && !done && disc) {
+      const [mx, my] = canvasToGameXY(e.clientX, e.clientY, rect);
+      if (discHitTest(mx, my)) tryCatchDisc();
+    }
+  });
+  canvas.addEventListener('touchmove', e => {
+    e.preventDefault();
+    const rect=canvas.getBoundingClientRect();
+    mouseX=(e.touches[0].clientX-rect.left)*(W/rect.width);
+    if (!done && disc) {
+      const [mx, my] = canvasToGameXY(e.touches[0].clientX, e.touches[0].clientY, rect);
+      if (discHitTest(mx, my)) tryCatchDisc();
+    }
+  }, {passive:false});
+  canvas.addEventListener('touchstart', e => {
+    if (done || !disc) return;
+    const rect=canvas.getBoundingClientRect();
+    const [mx, my] = canvasToGameXY(e.touches[0].clientX, e.touches[0].clientY, rect);
+    if (discHitTest(mx, my)) tryCatchDisc();
+  }, { passive: false });
+
+  function drawDisc(ctx, x, y, frame) {
+    ctx.save(); ctx.translate(x,y);
+    ctx.rotate(frame*0.1);
+    // 飞盘
+    const grad=ctx.createRadialGradient(0,0,0,0,0,22);
+    grad.addColorStop(0,'#ff9a5c'); grad.addColorStop(0.7,'#ff6b00'); grad.addColorStop(1,'#cc4400');
+    ctx.fillStyle=grad;
+    ctx.beginPath(); ctx.ellipse(0,0,22,7,0,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,0.4)'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.ellipse(0,0,14,4,0,0,Math.PI*2); ctx.stroke();
+    // 发光圈（接住前提示）
+    const pulseAlpha=0.4+0.4*Math.abs(Math.sin(frame*0.12));
+    ctx.strokeStyle=`rgba(255,220,100,${pulseAlpha})`; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.ellipse(0,0,38,15,0,0,Math.PI*2); ctx.stroke();
+    ctx.restore();
+  }
+
+  function loop() {
+    frame++;
+    ctx.clearRect(0,0,W,H);
+    drawTask4Background();
+
+    // 姐姐（略放大、靠左，与飞出起点一致）
+    if(ownerWaving && ownerAlpha > 0.1) ownerAlpha -= 0.003;
+    drawLevelSister(ctx, 78, H - 156, frame, {
+      scale: 1.52,
+      alpha: ownerAlpha,
+      pose: ownerWaving ? 'wave' : 'throw',
+      mirror: true
+    });
+
+    // 飞盘：漏接后自动再扔；接住由 tryCatchDisc 清空并 schedule 重生
+    if (disc) {
+      disc.progress += 0.0075;
+      if (disc.progress > 1) {
+        disc = null;
+        if (!done && !discRespawnScheduled) {
+          discRespawnScheduled = true;
+          setTimeout(spawnDisc, 700);
+        }
+      } else {
+        const pos = getBezier(disc.progress, { x: disc.p0x, y: disc.p0y }, { x: disc.p1x, y: disc.p1y }, { x: disc.p2x, y: disc.p2y });
+        disc.x = pos.x;
+        disc.y = pos.y;
+        drawDisc(ctx, disc.x, disc.y, frame);
+      }
+    }
+
+    // 狗狗
+    dogX += (mouseX-dogX)*0.1;
+    dogX=Math.max(30,Math.min(W-30,dogX));
+    drawLevelHappyDog(ctx, dogX, dogY + 18, frame, { scale: 1.32, bobPhase: frame * 0.25 });
+
+    // 花瓣（完成后）
+    if(ownerWaving) {
+      if(frame%5===0 && petals.length<40) petals.push({ x:Math.random()*W,y:-20,vx:(Math.random()-0.5)*1.5,vy:1+Math.random()*2,r:Math.random()*Math.PI*2,color:['#ffb3c1','#ffe4e1','#ffd4e8','#ffccdd'][Math.floor(Math.random()*4)] });
+      petals.forEach(p=>{ p.x+=p.vx;p.y+=p.vy;p.r+=0.04; ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.r);ctx.fillStyle=p.color;ctx.beginPath();ctx.ellipse(0,0,5,3,0,0,Math.PI*2);ctx.fill();ctx.restore(); });
+      petals=petals.filter(p=>p.y<H+20);
+    }
+
+    loops['task4'] = requestAnimationFrame(loop);
+  }
+  loops['task4'] = requestAnimationFrame(loop);
+  // 初始飞盘
+  setTimeout(spawnDisc, 800);
+}
+
+let farewellMessage = '不要哭哦，这边的肉干很好吃哦';
+
+// ===== 任务五：留言板 (Level 7 step 1) =====
+function startTask5() {
+  startEnding();
+}
+
+function sendFarewell() {
+  const msg = $('farewell-input').value.trim();
+  if(!msg) { $('farewell-input').placeholder='请先写一句话哦 💛'; return; }
+  farewellMessage = msg;
+  playMemorialSfx('letter');
+  
+  // 显示足印动画
+  const container = $('footprints');
+  const emojis = ['🐾','🐾','✨','🐾','🐾','💛'];
+  for(let i=0;i<12;i++) {
+    setTimeout(()=>{
+      const fp = document.createElement('div');
+      fp.className = 'footprint';
+      fp.textContent = emojis[i%emojis.length];
+      fp.style.left = (100+i*22) + 'px';
+      fp.style.top = (H-100-Math.sin(i*0.5)*40) + 'px';
+      fp.style.animationDelay = (i*0.1)+'s';
+      container.appendChild(fp);
+      setTimeout(()=>fp.remove(), 3500);
+    }, i*150);
+  }
+  
+  // 延迟后过渡到 Ending 场景
+  setTimeout(()=>{
+    const bubble = document.createElement('div');
+    bubble.style.cssText='position:absolute;bottom:200px;left:50%;transform:translateX(-50%);background:rgba(255,248,220,0.95);border:2px solid #ffd700;border-radius:12px;padding:14px 20px;font-size:13px;color:#4a3728;text-align:center;max-width:320px;line-height:1.8;animation:popIn 0.4s ease;z-index:50;';
+    bubble.innerHTML = `<div style="font-size:22px;margin-bottom:8px">🐾 ✨</div>字迹变成了爪印，飘向天空……<br><span style="color:#a06020;font-style:italic">「${msg}」</span><br><br>开心记住了 💛`;
+    document.querySelector('#screen-task5').appendChild(bubble);
+    setTimeout(()=>{
+      bubble.remove();
+      // 进入 Ending 实际画面
+      showScreen('screen-ending');
+      runEndingSequenceReal();
+    }, 3200);
+  }, 2000);
+}
+
+// ===== 终局 =====
+function startEnding() {
+  stopAllLoops();
+  showScreen('screen-task5');
+  const inputEl = $('farewell-input');
+  if (inputEl) {
+    inputEl.value = '';
+    inputEl.placeholder = '不要哭哦，这边的肉干很好吃哦';
+  }
+}
+
+function runEndingSequenceReal() {
+  stopAllLoops();
+  MemorialBgm.switchToEnding();
+  if (!MemorialBgm.isRunning()) MemorialBgm.start();
+
+  const dlg = $('ending-dialog');
+  const tagEl = $('ending-tagline');
+  const dimLayer = $('ending-dim-layer');
+  const outro = $('ending-outro');
+  const wellBtn = $('ending-well-btn');
+  if (dlg) dlg.style.display = 'none';
+  if (tagEl) {
+    tagEl.textContent = '';
+    tagEl.classList.remove('show');
+    tagEl.style.display = 'none';
+  }
+  if (dimLayer) {
+    dimLayer.classList.remove('on');
+    dimLayer.style.opacity = '0';
+    dimLayer.style.transition = '';
+  }
+  if (outro) outro.classList.remove('show');
+  if (wellBtn) {
+    wellBtn.hidden = true;
+    wellBtn.textContent = '好的，开心。我会好好的。再见。';
+    wellBtn.onclick = null;
+  }
+
+  const canvas = $('ending-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = W;
+  canvas.height = H;
+  ctx.imageSmoothingEnabled = false;
+
+  const introDogImg = new Image();
+  introDogImg.decoding = 'async';
+  let dogImgReady = false;
+  introDogImg.onload = () => {
+    memorialKnockoutDogBlackBg(introDogImg);
+    dogImgReady = true;
+  };
+  introDogImg.onerror = () => { dogImgReady = true; };
+  introDogImg.src = (typeof MEMORIAL_EMBEDDED !== 'undefined' && MEMORIAL_EMBEDDED.dog) ? MEMORIAL_EMBEDDED.dog : 'kaixin_intro_dog.png';
+
+  let frame = 0;
+  let mainPhase = 'opening';
+  let openingStage = 0;
+  let openingT0 = 0;
+  let endingTyper = null;
+  let dogAlpha = 1;
+  let lightGateAlpha = 0.92;
+  let fadeIntoGateWait = 0;
+  const ENDING_DOG_X = W * 0.5;
+  const ENDING_DOG_Y = H * 0.62;
+  const ENDING_DOG_DW = 172;
+  let photoStartFrame = 0;
+  let outroScheduled = false;
+
+  const ENDING_DIALOG_GROUPS = [
+    { text: `姐姐，终于见到你啦！你写给开心的话，我都看到啦：「${farewellMessage}」`, pose: 'stand' },
+    { text: '我在这里走了好久好久，每完成一件事，就离你更近一点点。我知道，你一直想摸摸我的头，对我说一声「乖」。', pose: 'neutral' },
+    { text: '那天早上……很突然。我也很想等你回来，想在你怀里闭上眼睛。可是身体实在太累了，像一片叶子，被风吹走了。', pose: 'tilt' },
+    { text: '姐姐，妈妈，你们不要怪自己哦。你每天隔着电话喊我的名字，我都听到了。你流眼泪的时候，我就在云上面，把那些眼泪变成星星了。你看，今晚的星星，都是你的。', pose: 'forward' },
+    { text: '妈妈把我埋在老家的那棵树下。我很喜欢那里，有风，有阳光，有好宽阔的草地，还有你小时候踩过的脚印。如果有一天你回来，不用哭，坐在那里就好。我会变成一阵暖风，绕着你转三圈，那就是我在蹭你的腿。', pose: 'sitWag' },
+    { text: '谢谢你陪开心度过的每一天。给了我好吃的肉干、软软的小窝，还有满满当当的爱。够我在下一趟旅程里，跟别的狗狗炫耀很久很久。', pose: 'stand' },
+    { text: '现在，我要去那边排队啦。听说在此之前，还可以许一个愿望。我想……下辈子还做你的小狗。不过你要答应我，到时候要早点来抱我，不许迟到哦。', pose: 'wag' },
+    { text: '开心走了两步，又回头。不要一直哭哦，我会从云上掉下来的。好啦，我走啦。你永远是我最最最……最喜欢的人。再见，姐姐。', pose: 'smile' }
+  ];
+  const ENDING_LINES = [];
+  const ENDING_POSES = [];
+  ENDING_DIALOG_GROUPS.forEach((g) => {
+    memorialSplitToSentences(g.text).forEach((line) => {
+      ENDING_LINES.push(line);
+      ENDING_POSES.push(g.pose);
+    });
+  });
+  let endingLineIdx = 0;
+
+  function getEndingGroupIdx(lineIdx) {
+    let n = 0;
+    for (let i = 0; i < ENDING_DIALOG_GROUPS.length; i++) {
+      n += memorialSplitToSentences(ENDING_DIALOG_GROUPS[i].text).length;
+      if (lineIdx < n) return i;
+    }
+    return ENDING_DIALOG_GROUPS.length - 1;
+  }
+
+  const stars = [];
+  for (let i = 0; i < 260; i++) {
+    stars.push({
+      x: Math.random() * W,
+      y: Math.random() * H * 0.58,
+      r: Math.random() * 1.8 + 0.2,
+      t: Math.random() * Math.PI * 2,
+      s: Math.random() * 0.04 + 0.015,
+      b: Math.random() > 0.92 ? 1.4 : 1
+    });
+  }
+  const GATE_W = 258;
+  const GATE_H = 302;
+  const ENDING_GATE_CX = W * 0.5;
+  const ENDING_GATE_BOTTOM = ENDING_DOG_Y + 8;
+  const ENDING_GATE_ARCH_R = GATE_W * 0.5;
+  const ENDING_GATE_ARCH_CY = ENDING_GATE_BOTTOM - (GATE_H - ENDING_GATE_ARCH_R);
+
+  function endingArchPath(cx, bottomY, gw, gh) {
+    const halfW = gw / 2;
+    const archR = gw / 2;
+    const archCy = bottomY - (gh - archR);
+    ctx.beginPath();
+    ctx.moveTo(cx - halfW, bottomY);
+    ctx.lineTo(cx - halfW, archCy);
+    ctx.arc(cx, archCy, archR, Math.PI, 0, false);
+    ctx.lineTo(cx + halfW, bottomY);
+    ctx.closePath();
+  }
+
+  function getGateRect() {
+    return {
+      cx: ENDING_GATE_CX,
+      bottomY: ENDING_GATE_BOTTOM,
+      topY: ENDING_GATE_BOTTOM - GATE_H,
+      archCy: ENDING_GATE_ARCH_CY,
+      archR: ENDING_GATE_ARCH_R,
+      gw: GATE_W,
+      gh: GATE_H
+    };
+  }
+
+  function clearEndingTyper() {
+    if (endingTyper) {
+      clearInterval(endingTyper);
+      endingTyper = null;
+    }
+  }
+
+  function drawSeaSkyGrass() {
+    const g = ctx.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, '#0c0822');
+    g.addColorStop(0.35, '#1a1240');
+    g.addColorStop(0.62, '#2a1a58');
+    g.addColorStop(0.78, '#1e3060');
+    g.addColorStop(1, '#0d2818');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, W, H);
+
+    const milky = ctx.createLinearGradient(0, H * 0.15, W, H * 0.45);
+    milky.addColorStop(0, 'rgba(255,255,255,0)');
+    milky.addColorStop(0.45, 'rgba(200,190,255,0.08)');
+    milky.addColorStop(0.55, 'rgba(255,240,220,0.06)');
+    milky.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = milky;
+    ctx.fillRect(0, 0, W, H * 0.55);
+
+    stars.forEach((st) => {
+      st.t += st.s;
+      const a = (0.25 + 0.75 * Math.abs(Math.sin(st.t))) * st.b;
+      ctx.beginPath();
+      ctx.arc(st.x, st.y, st.r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255,252,220,' + Math.min(1, a) + ')';
+      ctx.fill();
+    });
+
+    const grassTop = H * 0.52;
+    const gg = ctx.createLinearGradient(0, grassTop, 0, H);
+    gg.addColorStop(0, '#1a4a28');
+    gg.addColorStop(0.35, '#2d6a32');
+    gg.addColorStop(1, '#0f2410');
+    ctx.fillStyle = gg;
+    ctx.fillRect(0, grassTop, W, H - grassTop);
+    ctx.fillStyle = 'rgba(0,0,0,0.18)';
+    ctx.fillRect(0, grassTop, W, 4);
+  }
+
+  function drawLightGate(fr) {
+    if (lightGateAlpha <= 0.01) return;
+    const g = getGateRect();
+    const x = g.cx;
+    const bottomY = g.bottomY;
+    const gw = g.gw;
+    const gh = g.gh;
+    const archCy = g.archCy;
+    const pulse = 0.9 + 0.1 * Math.sin(fr * 0.05);
+    const coreX = x;
+    const coreY = archCy - g.archR * 0.12;
+    const flicker = 0.85 + 0.15 * Math.abs(Math.sin(fr * 0.07 + 0.4));
+
+    ctx.save();
+    ctx.globalAlpha = lightGateAlpha;
+    ctx.globalCompositeOperation = 'lighter';
+
+    const ground = ctx.createRadialGradient(x, bottomY, 4, x, bottomY, gw * 0.95);
+    ground.addColorStop(0, 'rgba(255,240,160,' + (0.42 * flicker) + ')');
+    ground.addColorStop(0.45, 'rgba(255,210,100,0.18)');
+    ground.addColorStop(1, 'rgba(255,180,80,0)');
+    ctx.fillStyle = ground;
+    ctx.beginPath();
+    ctx.ellipse(x, bottomY + 6, gw * 0.62 * pulse, 28, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    endingArchPath(x, bottomY, gw, gh);
+    ctx.save();
+    ctx.clip();
+
+    const rayN = 13;
+    for (let i = 0; i < rayN; i++) {
+      const t = i / (rayN - 1);
+      const ang = -Math.PI * 0.92 + t * Math.PI * 0.84;
+      const sway = Math.sin(fr * 0.04 + i * 0.7) * 0.06;
+      const len = (bottomY - coreY + 120) * (0.82 + (i % 3) * 0.08);
+      const x2 = coreX + Math.cos(ang + sway) * len * 1.05;
+      const y2 = coreY + Math.sin(ang + sway) * len;
+      const rg = ctx.createLinearGradient(coreX, coreY, x2, y2);
+      rg.addColorStop(0, 'rgba(255,255,220,' + (0.7 * flicker) + ')');
+      rg.addColorStop(0.25, 'rgba(255,235,160,' + (0.45 * flicker) + ')');
+      rg.addColorStop(0.65, 'rgba(255,200,90,0.12)');
+      rg.addColorStop(1, 'rgba(255,180,70,0)');
+      ctx.strokeStyle = rg;
+      ctx.lineWidth = 10 + (i % 4) * 3;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(coreX, coreY);
+      ctx.lineTo(x2, y2);
+      ctx.stroke();
+    }
+
+    for (let j = 0; j < 5; j++) {
+      const fan = ctx.createLinearGradient(x, coreY, x, bottomY + 40);
+      fan.addColorStop(0, 'rgba(255,255,230,' + (0.35 * flicker) + ')');
+      fan.addColorStop(0.5, 'rgba(255,220,130,0.14)');
+      fan.addColorStop(1, 'rgba(255,200,90,0)');
+      ctx.fillStyle = fan;
+      const spread = (gw * 0.22) * (1 + j * 0.12);
+      ctx.beginPath();
+      ctx.moveTo(x, coreY);
+      ctx.lineTo(x - spread, bottomY + 20);
+      ctx.lineTo(x + spread, bottomY + 20);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    const bodyGrad = ctx.createLinearGradient(x - gw / 2, archCy - g.archR, x + gw / 2, bottomY);
+    bodyGrad.addColorStop(0, 'rgba(255,255,240,0.97)');
+    bodyGrad.addColorStop(0.35, 'rgba(255,236,170,0.78)');
+    bodyGrad.addColorStop(0.7, 'rgba(255,210,110,0.42)');
+    bodyGrad.addColorStop(1, 'rgba(255,185,80,0.1)');
+    ctx.fillStyle = bodyGrad;
+    ctx.fillRect(x - gw / 2, archCy - g.archR, gw, bottomY - (archCy - g.archR));
+
+    const inner = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, gw * 0.32);
+    inner.addColorStop(0, 'rgba(255,255,255,0.95)');
+    inner.addColorStop(0.45, 'rgba(255,250,210,0.55)');
+    inner.addColorStop(1, 'rgba(255,230,150,0)');
+    ctx.fillStyle = inner;
+    ctx.beginPath();
+    ctx.ellipse(coreX, coreY + gh * 0.06, gw * 0.22, gh * 0.28, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    ctx.globalCompositeOperation = 'source-over';
+
+    const halo = ctx.createRadialGradient(coreX, coreY, 6, coreX, coreY, gw * 0.62 * pulse);
+    halo.addColorStop(0, 'rgba(255,255,210,0.32)');
+    halo.addColorStop(0.5, 'rgba(255,220,120,0.12)');
+    halo.addColorStop(1, 'rgba(255,180,80,0)');
+    ctx.fillStyle = halo;
+    ctx.beginPath();
+    ctx.ellipse(coreX, coreY + gh * 0.06, gw * 0.5 * pulse, gh * 0.46 * pulse, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    endingArchPath(x, bottomY, gw, gh);
+    ctx.strokeStyle = 'rgba(255,248,200,0.9)';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(255,255,230,' + (0.22 + 0.18 * Math.abs(Math.sin(fr * 0.06))) + ')';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawIntroDog() {
+    if (!dogImgReady || !introDogImg.complete || introDogImg.naturalWidth < 2) return;
+    if (dogAlpha <= 0.01) return;
+    const iw = introDogImg.naturalWidth;
+    const ih = introDogImg.naturalHeight;
+    const dw = ENDING_DOG_DW;
+    const dh = (ih / iw) * dw;
+    ctx.save();
+    ctx.globalAlpha = dogAlpha;
+    ctx.translate(ENDING_DOG_X, ENDING_DOG_Y);
+    ctx.imageSmoothingEnabled = true;
+    ctx.drawImage(introDogImg, -dw / 2, -dh + 8, dw, dh);
+    ctx.restore();
+    ctx.imageSmoothingEnabled = false;
+  }
+
+  const finalPhotoImg = new Image();
+  finalPhotoImg.src = memorialAssetSrc('ending_photo.png');
+  let photoReady = false;
+  finalPhotoImg.onload = () => { photoReady = true; };
+  finalPhotoImg.onerror = () => { photoReady = true; };
+
+  function drawFinalPhotoCard(fr) {
+    const t0 = photoStartFrame > 0 ? fr - photoStartFrame : 0;
+    const alpha = Math.min(1, t0 * 0.018);
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = '#fff8f0';
+    
+    const pw = 340;
+    const ph = 460;
+    const px = (W - pw) / 2;
+    const py = (H - ph) / 2;
+    
+    ctx.fillRect(px - 10, py - 10, pw + 20, ph + 20);
+    ctx.strokeStyle = '#d4af37';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(px - 10, py - 10, pw + 20, ph + 20);
+    
+    const imgAreaH = ph - 60;
+    if (photoReady && finalPhotoImg.complete && finalPhotoImg.naturalWidth > 5) {
+      const iw = finalPhotoImg.naturalWidth;
+      const ih = finalPhotoImg.naturalHeight;
+      const scale = Math.max(pw / iw, imgAreaH / ih);
+      const dw = iw * scale;
+      const dh = ih * scale;
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(px, py, pw, imgAreaH);
+      ctx.clip();
+      ctx.imageSmoothingEnabled = true;
+      ctx.drawImage(finalPhotoImg, px + (pw - dw) / 2, py + (imgAreaH - dh) / 2, dw, dh);
+      ctx.restore();
+      ctx.imageSmoothingEnabled = false;
+    } else {
+      ctx.fillStyle = '#ebd5b0';
+      ctx.fillRect(px, py, pw, ph - 60);
+    }
+    
+    ctx.fillStyle = '#fff8f0';
+    ctx.fillRect(px, py + ph - 60, pw, 60);
+    ctx.fillStyle = '#8b6914';
+    ctx.font = 'bold 16px var(--pixel)';
+    ctx.textAlign = 'center';
+    ctx.fillText('开心 & 姐姐', W / 2, py + ph - 30);
+    ctx.fillStyle = 'rgba(180,140,60,0.85)';
+    ctx.font = '12px var(--pixel)';
+    ctx.fillText('永远在一起 ❤️', W / 2, py + ph - 10);
+    ctx.restore();
+  }
+
+  function showEndingDialog() {
+    clearEndingTyper();
+    const d = $('ending-dialog');
+    const textEl = $('dialog-text');
+    if (!d || !textEl) return;
+    d.style.display = 'block';
+    const full = ENDING_LINES[endingLineIdx] || '';
+    textEl.textContent = '';
+    let ci = 0;
+    endingTyper = setInterval(() => {
+      if (ci < full.length) {
+        textEl.textContent += full.charAt(ci);
+        ci++;
+      } else {
+        clearEndingTyper();
+      }
+    }, 38);
+  }
+
+  function markLevel7Done() {
+    if (!completedTasks.has(7)) {
+      completedTasks.add(7);
+      memorialSaveLevels();
+      updateMerit();
+    }
+  }
+
+  function beginFadeIntoGate() {
+    clearEndingTyper();
+    if (dlg) dlg.style.display = 'none';
+    mainPhase = 'fadeIntoGate';
+    fadeIntoGateWait = 0;
+  }
+
+  window.nextDialog = function () {
+    const full = ENDING_LINES[endingLineIdx];
+    const textEl = $('dialog-text');
+    if (textEl && full && textEl.textContent.length < full.length) {
+      clearEndingTyper();
+      textEl.textContent = full;
+      return;
+    }
+    if (dlg) dlg.style.display = 'none';
+    clearEndingTyper();
+    endingLineIdx++;
+    if (endingLineIdx >= ENDING_LINES.length) {
+      beginFadeIntoGate();
+      return;
+    }
+    showEndingDialog();
+  };
+
+  function tickOpening(now) {
+    if (openingStage === 0) {
+      if (dogImgReady) {
+        openingStage = 1;
+        openingT0 = now;
+      }
+    } else if (openingStage === 1) {
+      if (now - openingT0 > 2400) {
+        openingStage = 2;
+        mainPhase = 'dialog';
+        endingLineIdx = 0;
+        showEndingDialog();
+      }
+    }
+  }
+
+  function endLoop() {
+    frame++;
+    const now = Date.now();
+
+    if (mainPhase === 'photo') {
+      if (photoStartFrame === 0) photoStartFrame = frame;
+      ctx.clearRect(0, 0, W, H);
+      drawFinalPhotoCard(frame);
+      loops['ending'] = requestAnimationFrame(endLoop);
+      return;
+    }
+
+    if (mainPhase === 'opening') {
+      tickOpening(now);
+    }
+
+    ctx.clearRect(0, 0, W, H);
+    drawSeaSkyGrass();
+
+    if (mainPhase !== 'dimOutro') {
+      drawLightGate(frame);
+    }
+
+    if (mainPhase === 'fadeIntoGate') {
+      fadeIntoGateWait++;
+      lightGateAlpha = Math.min(1, lightGateAlpha + 0.006);
+      if (fadeIntoGateWait > 36) {
+        dogAlpha -= 0.018;
+      }
+      if (dogAlpha <= 0 && !outroScheduled) {
+        dogAlpha = 0;
+        outroScheduled = true;
+        mainPhase = 'dimOutro';
+        if (dimLayer) {
+          dimLayer.style.opacity = '0';
+          dimLayer.classList.add('on');
+          requestAnimationFrame(() => {
+            dimLayer.style.transition = 'opacity 2.6s ease';
+            dimLayer.style.opacity = '0.94';
+          });
+        }
+        setTimeout(() => {
+          markLevel7Done();
+          if (outro) outro.classList.add('show');
+          if (wellBtn) {
+            wellBtn.textContent = '好的，开心。我会好好的。再见。';
+            wellBtn.hidden = false;
+            wellBtn.onclick = function () {
+              if (outro) outro.classList.remove('show');
+              if (dimLayer) {
+                dimLayer.classList.remove('on');
+                dimLayer.style.opacity = '0';
+                dimLayer.style.transition = '';
+              }
+              mainPhase = 'photo';
+              photoStartFrame = 0;
+            };
+          }
+        }, 2600);
+      }
+    }
+
+    if (
+      dogAlpha > 0 &&
+      (mainPhase === 'opening' || mainPhase === 'dialog' || mainPhase === 'fadeIntoGate')
+    ) {
+      drawIntroDog();
+    }
+
+    loops['ending'] = requestAnimationFrame(endLoop);
+  }
+
+  loops['ending'] = requestAnimationFrame(endLoop);
+}
+
+// ===== 任务五：唤醒开心 =====
+function memorialAssetSrc(file) {
+  const base = file.replace(/\.(png|jpg|jpeg|mp3)$/i, '').replace(/[\\/]/g, '_');
+  const emb = typeof MEMORIAL_EMBEDDED !== 'undefined' ? MEMORIAL_EMBEDDED : null;
+  if (emb) {
+    if (emb[base]) return emb[base];
+    if (base === 'ending_photo' && emb.photo) return emb.photo;
+  }
+  return file;
+}
+function memorialTask6Src(file) { return memorialAssetSrc(file); }
+
+function startTask6() {
+  const canvas = $('canvas6');
+  const hintEl = $('task6-hint');
+  const co = $('complete6');
+  if (!canvas) return;
+
+  if (canvas._task6AC) {
+    try { canvas._task6AC.abort(); } catch (e) {}
+    canvas._task6AC = null;
+  }
+  const ac = new AbortController();
+  canvas._task6AC = ac;
+  const sig = { signal: ac.signal };
+
+  if (loops.task6) {
+    cancelAnimationFrame(loops.task6);
+    delete loops.task6;
+  }
+  if (co) co.classList.remove('show');
+
+  const ctx = canvas.getContext('2d');
+  canvas.width = W;
+  canvas.height = H;
+
+  let frame = 0;
+  let done = false;
+  let placedCount = 0;
+  let draggingItem = null;
+  let dragOffsetX = 0;
+  let dragOffsetY = 0;
+  let dogAwake = false;
+  let assetsReady = false;
+
+  let sweatDrops = [];
+  let floatFx = [];
+
+  const DOG_X = W * 0.5;
+  const DOG_FOOT_Y = 586;
+  const DOG_DRAW_W = 272;
+  const DOG_HIT_PAD = 16;
+  const ITEM_FRAME = 52;
+  const ITEM_GAP = 5;
+  const ITEM_ROW_Y = H - 96;
+
+  const TASK6_ITEM_DEFS = [
+    { file: 'task6_item_01.png', name: '旧女士拖鞋', isCorrect: true },
+    { file: 'task6_item_02.png', name: '红色毛绒围巾', isCorrect: true },
+    { file: 'task6_item_03.png', name: '遥控器', isCorrect: false },
+    { file: 'task6_item_04.png', name: '纸巾盒', isCorrect: false },
+    { file: 'task6_item_05.png', name: '蓝色球球', isCorrect: true },
+    { file: 'task6_item_06.png', name: '黄色橡胶圈', isCorrect: true },
+    { file: 'task6_item_07.png', name: '胡萝卜玩偶', isCorrect: false }
+  ];
+  const rowTotal = TASK6_ITEM_DEFS.length * ITEM_FRAME + (TASK6_ITEM_DEFS.length - 1) * ITEM_GAP;
+  let slotX = (W - rowTotal) / 2 + ITEM_FRAME / 2;
+  const ITEM_SLOTS = TASK6_ITEM_DEFS.map(() => {
+    const slot = { x: slotX, y: ITEM_ROW_Y };
+    slotX += ITEM_FRAME + ITEM_GAP;
+    return slot;
+  });
+
+  const task6Assets = { room: null, dogLie: null, dogSit: null, items: [] };
+  const items = TASK6_ITEM_DEFS.map((def, i) => ({
+    name: def.name,
+    isCorrect: def.isCorrect,
+    img: null,
+    x: ITEM_SLOTS[i].x,
+    y: ITEM_SLOTS[i].y,
+    ox: ITEM_SLOTS[i].x,
+    oy: ITEM_SLOTS[i].y,
+    w: ITEM_FRAME,
+    h: ITEM_FRAME,
+    placed: false
+  }));
+
+  function loadTask6Image(src) {
+    return new Promise((resolve) => {
+      const im = new Image();
+      im.decoding = 'async';
+      im.onload = () => resolve(im);
+      im.onerror = () => resolve(null);
+      im.src = memorialTask6Src(src);
+    });
+  }
+
+  Promise.all([
+    loadTask6Image('task6_room.png'),
+    loadTask6Image('task6_dog_lie.png'),
+    loadTask6Image('task6_dog_sit.png'),
+    ...TASK6_ITEM_DEFS.map((d) => loadTask6Image(d.file))
+  ]).then(([room, lie, sit, ...itemImgs]) => {
+    task6Assets.room = room;
+    task6Assets.dogLie = lie;
+    task6Assets.dogSit = sit;
+    if (lie) memorialKnockoutDogBlackBg(lie);
+    if (sit) memorialKnockoutDogBlackBg(sit);
+    itemImgs.forEach((img, i) => { items[i].img = img; });
+    assetsReady = true;
+  });
+
+  const TASK6_HINT_GAP = 12;
+  function layoutTask6Hint() {
+    if (!hintEl) return;
+    const itemTop = ITEM_ROW_Y - ITEM_FRAME / 2;
+    hintEl.textContent = '拖拽物品与开心互动吧';
+    hintEl.style.bottom = 'auto';
+    hintEl.style.top = ((itemTop - TASK6_HINT_GAP) / H * 100) + '%';
+    hintEl.style.transform = 'translate(-50%, -100%)';
+  }
+  layoutTask6Hint();
+
+  function toCanvas(cx, cy) {
+    const rect = canvas.getBoundingClientRect();
+    return [
+      (cx - rect.left) * (W / rect.width),
+      (cy - rect.top) * (H / rect.height)
+    ];
+  }
+
+  function checkCollision(mx, my, rect) {
+    return mx >= rect.x - rect.w / 2 && mx <= rect.x + rect.w / 2 &&
+           my >= rect.y - rect.h / 2 && my <= rect.y + rect.h / 2;
+  }
+
+  /** 与 drawKaixinDog 一致的立绘包围盒（用于拖放判定） */
+  function getKaixinDogBounds() {
+    const img = dogAwake ? task6Assets.dogSit : task6Assets.dogLie;
+    let dh = DOG_DRAW_W * 0.85;
+    if (img && img.complete && img.naturalWidth > 2) {
+      dh = (img.naturalHeight / img.naturalWidth) * DOG_DRAW_W;
+    }
+    const dx = DOG_X - DOG_DRAW_W / 2;
+    const dy = DOG_FOOT_Y - dh + 6;
+    return {
+      left: dx,
+      top: dy,
+      right: dx + DOG_DRAW_W,
+      bottom: DOG_FOOT_Y + 8,
+      cx: DOG_X,
+      cy: dy + dh * 0.45
+    };
+  }
+
+  function isItemOverKaixin(it) {
+    const b = getKaixinDogBounds();
+    const p = DOG_HIT_PAD;
+    const l = it.x - it.w / 2;
+    const r = it.x + it.w / 2;
+    const t = it.y - it.h / 2;
+    const bo = it.y + it.h / 2;
+    return !(r < b.left - p || l > b.right + p || bo < b.top - p || t > b.bottom + p);
+  }
+
+  function onStart(cx, cy) {
+    if (done) return;
+    const [mx, my] = toCanvas(cx, cy);
+    for (let i = items.length - 1; i >= 0; i--) {
+      const it = items[i];
+      if (it.placed) continue;
+      if (checkCollision(mx, my, { x: it.x, y: it.y, w: it.w, h: it.h })) {
+        draggingItem = it;
+        dragOffsetX = mx - it.x;
+        dragOffsetY = my - it.y;
+        playMemorialSfx('pickup');
+        break;
+      }
+    }
+  }
+
+  function onMove(cx, cy) {
+    if (!draggingItem) return;
+    const [mx, my] = toCanvas(cx, cy);
+    draggingItem.x = mx - dragOffsetX;
+    draggingItem.y = my - dragOffsetY;
+  }
+
+  function onEnd() {
+    if (!draggingItem) return;
+    const it = draggingItem;
+    draggingItem = null;
+
+    if (isItemOverKaixin(it)) {
+      const dogB = getKaixinDogBounds();
+      if (it.isCorrect) {
+        it.placed = true;
+        placedCount++;
+        playMemorialSfx('snap');
+        for (let j = 0; j < 4; j++) {
+          floatFx.push({
+            x: dogB.cx + (Math.random() - 0.5) * 36,
+            y: dogB.top + (Math.random() - 0.5) * (dogB.bottom - dogB.top) * 0.35,
+            vy: -1.2 - Math.random(),
+            life: 1,
+            kind: 'heart'
+          });
+        }
+        if (placedCount >= 3) {
+          done = true;
+          dogAwake = true;
+          playMemorialSfx('chime');
+          setTimeout(() => {
+            if (co) co.classList.add('show');
+          }, 1400);
+        }
+      } else {
+        playMemorialSfx('bump');
+        const dogB = getKaixinDogBounds();
+        for (let j = 0; j < 3; j++) {
+          floatFx.push({
+            x: dogB.cx + (Math.random() - 0.5) * 30,
+            y: dogB.top + (Math.random() - 0.5) * 12,
+            vy: -0.6,
+            life: 1,
+            kind: 'question'
+          });
+        }
+        for (let j = 0; j < 5; j++) {
+          sweatDrops.push({
+            x: dogB.cx + (Math.random() - 0.5) * 40,
+            y: dogB.top + 20 + (Math.random() - 0.5) * 20,
+            vx: (Math.random() - 0.5) * 2,
+            vy: 2 + Math.random() * 2,
+            life: 1.0
+          });
+        }
+        // Snap back
+        it.x = it.ox;
+        it.y = it.oy;
+      }
+    } else {
+      playMemorialSfx('miss');
+      it.x = it.ox;
+      it.y = it.oy;
+    }
+  }
+
+  canvas.addEventListener('mousedown', e => onStart(e.clientX, e.clientY), sig);
+  canvas.addEventListener('mousemove', e => onMove(e.clientX, e.clientY), sig);
+  canvas.addEventListener('mouseup', e => onEnd(), sig);
+  canvas.addEventListener('touchstart', e => { e.preventDefault(); onStart(e.touches[0].clientX, e.touches[0].clientY); }, { signal: ac.signal, passive: false });
+  canvas.addEventListener('touchmove', e => { e.preventDefault(); onMove(e.touches[0].clientX, e.touches[0].clientY); }, { signal: ac.signal, passive: false });
+  canvas.addEventListener('touchend', e => onEnd(), sig);
+
+  function drawRoomFallback() {
+    const g = ctx.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, '#f9a85c');
+    g.addColorStop(0.45, '#f5d4a0');
+    g.addColorStop(1, '#c9a06a');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = 'rgba(255,220,140,0.35)';
+    ctx.fillRect(0, H * 0.42, W * 0.55, H * 0.35);
+  }
+
+  function drawCover(img) {
+    if (!img || !img.complete || img.naturalWidth < 2) return false;
+    const iw = img.naturalWidth;
+    const ih = img.naturalHeight;
+    const scale = Math.max(W / iw, H / ih);
+    const sw = iw * scale;
+    const sh = ih * scale;
+    ctx.imageSmoothingEnabled = true;
+    ctx.drawImage(img, (W - sw) / 2, (H - sh) / 2, sw, sh);
+    ctx.imageSmoothingEnabled = false;
+    return true;
+  }
+
+  function drawKaixinDog() {
+    const img = dogAwake ? task6Assets.dogSit : task6Assets.dogLie;
+    if (!img || !img.complete || img.naturalWidth < 2) return;
+    const dh = (img.naturalHeight / img.naturalWidth) * DOG_DRAW_W;
+    const dx = DOG_X - DOG_DRAW_W / 2;
+    const dy = DOG_FOOT_Y - dh + 6;
+    ctx.save();
+    ctx.imageSmoothingEnabled = true;
+    ctx.drawImage(img, dx, dy, DOG_DRAW_W, dh);
+    ctx.restore();
+    ctx.imageSmoothingEnabled = false;
+  }
+
+  function drawPixelItemFrame(cx, cy, fw, isDragging) {
+    const x = Math.round(cx - fw / 2);
+    const y = Math.round(cy - fw / 2);
+    ctx.fillStyle = 'rgba(0,0,0,0.24)';
+    ctx.fillRect(x + 2, y + 2, fw, fw);
+    ctx.fillStyle = isDragging ? '#6b5428' : '#4a3820';
+    ctx.fillRect(x, y, fw, fw);
+    ctx.fillStyle = isDragging ? '#fff9ec' : '#ecd9b4';
+    ctx.fillRect(x + 3, y + 3, fw - 6, fw - 6);
+    ctx.fillStyle = '#fff8dc';
+    ctx.fillRect(x + 3, y + 3, fw - 6, 2);
+    ctx.fillRect(x + 3, y + 3, 2, fw - 6);
+    ctx.fillStyle = '#b89868';
+    ctx.fillRect(x + 3, y + fw - 5, fw - 6, 2);
+    ctx.fillRect(x + fw - 5, y + 3, 2, fw - 6);
+    if (isDragging) {
+      ctx.fillStyle = '#ffd700';
+      ctx.fillRect(x + 1, y + 1, fw - 2, 2);
+      ctx.fillRect(x + 1, y + fw - 3, fw - 2, 2);
+      ctx.fillRect(x + 1, y + 1, 2, fw - 2);
+      ctx.fillRect(x + fw - 3, y + 1, 2, fw - 2);
+    }
+  }
+
+  function drawItemSprite(it, isDragging) {
+    const fw = it.w;
+    const pad = 7;
+    const sw = fw - pad * 2;
+    drawPixelItemFrame(it.x, it.y, fw, isDragging);
+    if (!it.img || !it.img.complete) return;
+    ctx.save();
+    if (isDragging) ctx.globalAlpha = 0.96;
+    ctx.imageSmoothingEnabled = true;
+    ctx.drawImage(it.img, it.x - sw / 2, it.y - sw / 2, sw, sw);
+    ctx.restore();
+    ctx.imageSmoothingEnabled = false;
+  }
+
+  function loop() {
+    frame++;
+
+    if (!drawCover(task6Assets.room)) drawRoomFallback();
+
+    drawKaixinDog();
+
+    items.forEach((it) => {
+      if (!it.placed && it !== draggingItem) drawItemSprite(it, false);
+    });
+
+    if (draggingItem) drawItemSprite(draggingItem, true);
+
+    // Draw sweat drops
+    ctx.fillStyle = '#6cb8ff';
+    sweatDrops.forEach((sw, idx) => {
+      sw.x += sw.vx;
+      sw.y += sw.vy;
+      sw.life -= 0.02;
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, sw.life);
+      ctx.beginPath();
+      ctx.arc(sw.x, sw.y, 3, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    });
+    sweatDrops = sweatDrops.filter(sw => sw.life > 0);
+
+    floatFx.forEach((fx) => {
+      fx.y += fx.vy;
+      fx.life -= 0.025;
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, fx.life);
+      ctx.font = fx.kind === 'heart' ? '16px serif' : 'bold 18px var(--pixel)';
+      ctx.textAlign = 'center';
+      ctx.fillStyle = fx.kind === 'heart' ? '#ff6b9d' : '#8b7355';
+      ctx.fillText(fx.kind === 'heart' ? '💗' : '?', fx.x, fx.y);
+      ctx.restore();
+    });
+    floatFx = floatFx.filter((fx) => fx.life > 0);
+
+    loops.task6 = requestAnimationFrame(loop);
+  }
+
+  loops.task6 = requestAnimationFrame(loop);
+}
+
+// ===== 任务六：QTE拔河比赛 =====
+function startTask7() {
+  const canvas = $('canvas7');
+  const co = $('complete7');
+  if (!canvas) return;
+
+  if (canvas._task7AC) {
+    try { canvas._task7AC.abort(); } catch (e) {}
+    canvas._task7AC = null;
+  }
+  const ac = new AbortController();
+  canvas._task7AC = ac;
+  const sig = { signal: ac.signal };
+
+  if (loops.task7) {
+    cancelAnimationFrame(loops.task7);
+    delete loops.task7;
+  }
+  if (co) {
+    co.classList.remove('show');
+    const titleEl = co.querySelector('.complete-title');
+    const textEl = co.querySelector('.complete-text');
+    const iconEl = co.querySelector('.complete-icon');
+    if (iconEl) iconEl.textContent = '✨';
+    if (titleEl) titleEl.textContent = '姐姐赢啦！';
+    if (textEl) textEl.textContent = '😊 无论多少次，开心都想和姐姐再玩一局';
+  }
+
+  const ctx = canvas.getContext('2d');
+  canvas.width = W;
+  canvas.height = H;
+  ctx.imageSmoothingEnabled = false;
+
+  let frame = 0;
+  let done = false;
+  let qtePhase = 'countdown';
+  let countdownStep = 3;
+  let countdownTimer = 0;
+  let currentRound = 0;
+  const totalRounds = 8;
+  let consecutiveMisses = 0;
+  let dogWon = false;
+  let pointerPos = 0;
+  let pointerDir = 1;
+  let pullProgress = 0;
+  let sisterPullOffset = 0;
+  let dogPullOffset = 0;
+  let flashColor = null;
+  let flashTimer = 0;
+  let screenShake = 0;
+
+  const TUG_ROPE_LEN = 224;
+  const SISTER_HAND_DROP = 30;
+  const TUG_FONT = '18px var(--pixel)';
+  const TUG_FONT_BOLD = 'bold 18px var(--pixel)';
+  const TUG_TEXT = '#000';
+  const TUG_BOTTOM_Y1 = H - 44;
+  const TUG_BOTTOM_Y2 = H - 64;
+  const TUG_BOTTOM_Y3 = H - 84;
+
+  const bgImg = new Image();
+  let bgReady = false;
+  bgImg.onload = () => { bgReady = true; };
+  bgImg.onerror = () => { bgReady = false; };
+  bgImg.src = memorialAssetSrc('task7_bg.png');
+
+  function getTugLayout(fr) {
+    const brace = Math.sin(fr * 0.3) * 2;
+    const dogAnchorY = H * 0.20 + dogPullOffset + brace;
+    const mouthY = dogAnchorY + 36;
+    const handY = mouthY + TUG_ROPE_LEN + SISTER_HAND_DROP;
+    return { brace, dogAnchorY, mouthY, handY };
+  }
+
+  function showTugComplete(winner) {
+    if (!co) return;
+    const titleEl = co.querySelector('.complete-title');
+    const textEl = co.querySelector('.complete-text');
+    const iconEl = co.querySelector('.complete-icon');
+    if (winner === 'dog') {
+      if (iconEl) iconEl.textContent = '🐾';
+      if (titleEl) titleEl.textContent = '开心赢啦！';
+      if (textEl) textEl.textContent = '😊 开心得意地摇摇尾巴——下次姐姐再和开心拔一局吧';
+    } else {
+      if (iconEl) iconEl.textContent = '✨';
+      if (titleEl) titleEl.textContent = '姐姐赢啦！';
+      if (textEl) textEl.textContent = '😊 无论多少次，开心都想和姐姐再玩一局';
+    }
+    setTimeout(() => { co.classList.add('show'); }, 800);
+  }
+
+  function handleHit() {
+    if (done || qtePhase !== 'play') return;
+    if (pointerPos >= -130 && pointerPos <= -50) {
+      consecutiveMisses = 0;
+      playMemorialSfx('snap');
+      flashColor = 'rgba(0, 255, 0, 0.3)';
+      flashTimer = 10;
+      screenShake = 6;
+      pullProgress = Math.max(-100, pullProgress - 28);
+      sisterPullOffset = 15;
+      dogPullOffset = -10;
+      playMemorialSfx('chime');
+      currentRound++;
+      if (currentRound >= totalRounds) {
+        pullProgress = -100;
+        done = true;
+        dogWon = false;
+        qtePhase = 'done';
+        showTugComplete('sister');
+      } else {
+        pullProgress = Math.min(pullProgress, -20);
+      }
+    } else {
+      consecutiveMisses++;
+      playMemorialSfx('bump');
+      flashColor = 'rgba(255, 0, 0, 0.3)';
+      flashTimer = 10;
+      pullProgress = Math.min(100, pullProgress + 22);
+      sisterPullOffset = -5;
+      dogPullOffset = 15;
+      if (consecutiveMisses >= 3) {
+        pullProgress = 100;
+        done = true;
+        dogWon = true;
+        qtePhase = 'done';
+        showTugComplete('dog');
+      }
+    }
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.code === 'Space' || e.key === ' ') {
+      e.preventDefault();
+      handleHit();
+    }
+  }, sig);
+
+  canvas.addEventListener('click', e => {
+    e.preventDefault();
+    handleHit();
+  }, sig);
+  canvas.addEventListener('touchstart', e => {
+    e.preventDefault();
+    handleHit();
+  }, { signal: ac.signal, passive: false });
+
+  function drawBackground() {
+    if (bgReady && bgImg.complete && bgImg.naturalWidth > 2) {
+      const iw = bgImg.naturalWidth;
+      const ih = bgImg.naturalHeight;
+      const scale = Math.max(W / iw, H / ih);
+      const dw = iw * scale;
+      const dh = ih * scale;
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(bgImg, (W - dw) / 2, (H - dh) / 2, dw, dh);
+      return;
+    }
+    const sky = ctx.createLinearGradient(0, 0, 0, H);
+    sky.addColorStop(0, '#f9805b');
+    sky.addColorStop(0.5, '#fbc586');
+    sky.addColorStop(1, '#a8e063');
+    ctx.fillStyle = sky;
+    ctx.fillRect(0, 0, W, H);
+  }
+
+  /** 拔河：像素小狗正面咬住橡皮圈（黑白边牧花纹） */
+  function drawTugDog(fr) {
+    const L = getTugLayout(fr);
+    const blk = '#14141c';
+    const wht = '#eceef2';
+    const nose = '#e898a4';
+    ctx.save();
+    ctx.translate(W / 2, L.dogAnchorY);
+    ctx.rotate(-0.1 + Math.sin(fr * 0.22) * 0.03);
+
+    ctx.fillStyle = blk;
+    ctx.fillRect(-24, -12, 48, 52);
+    ctx.fillStyle = wht;
+    ctx.fillRect(-14, -2, 28, 30);
+    ctx.fillStyle = blk;
+    ctx.fillRect(-26, 36, 10, 14);
+    ctx.fillRect(-12, 36, 10, 14);
+    ctx.fillRect(8, 34, 10, 16);
+    ctx.fillRect(20, 34, 10, 16);
+    ctx.fillStyle = wht;
+    ctx.fillRect(-24, 46, 6, 3);
+    ctx.fillRect(-10, 46, 6, 3);
+    ctx.fillRect(10, 46, 6, 3);
+    ctx.fillRect(24, 46, 6, 3);
+
+    ctx.fillStyle = wht;
+    ctx.fillRect(-14, -42, 28, 24);
+    ctx.fillStyle = blk;
+    ctx.fillRect(-16, -44, 32, 10);
+    ctx.fillRect(-16, -40, 9, 20);
+    ctx.fillRect(7, -40, 9, 20);
+    ctx.fillRect(-20, -48, 9, 10);
+    ctx.fillRect(11, -48, 9, 10);
+
+    ctx.strokeStyle = '#2a2018';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(-8, -30);
+    ctx.lineTo(-4, -27);
+    ctx.moveTo(4, -30);
+    ctx.lineTo(8, -27);
+    ctx.stroke();
+
+    ctx.fillStyle = nose;
+    ctx.fillRect(-2, -20, 4, 4);
+
+    ctx.save();
+    ctx.translate(-22, 6);
+    ctx.rotate(Math.sin(fr * 0.4) * 0.28 - 0.38);
+    ctx.fillStyle = blk;
+    ctx.fillRect(-8, -18, 11, 26);
+    ctx.fillStyle = wht;
+    ctx.fillRect(-5, -12, 5, 12);
+    ctx.restore();
+
+    ctx.restore();
+  }
+
+  function drawSisterHands() {
+    const L = getTugLayout(frame);
+    const handY = L.handY - sisterPullOffset;
+    ctx.save();
+    ctx.fillStyle = '#ffd5b0';
+    ctx.fillRect(W / 2 - 45, handY, 26, 26);
+    ctx.fillRect(W / 2 + 19, handY, 26, 26);
+    ctx.fillStyle = '#fcae82';
+    ctx.fillRect(W / 2 - 45, handY, 26, 6);
+    ctx.fillRect(W / 2 + 19, handY, 26, 6);
+    ctx.restore();
+  }
+
+  function drawRubberRing() {
+    const L = getTugLayout(frame);
+    const handY = L.handY - sisterPullOffset;
+    ctx.save();
+    ctx.strokeStyle = '#ffd700';
+    ctx.lineWidth = 14;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(W / 2, L.mouthY);
+    ctx.lineTo(W / 2, handY);
+    ctx.stroke();
+    ctx.strokeStyle = '#ffe875';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(W / 2 - 2, L.mouthY + 8);
+    ctx.lineTo(W / 2 - 2, handY - 8);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawQTEMeter() {
+    const barX = W / 2;
+    const barY = H / 2 + 20;
+    const barW = 300;
+    const barH = 18;
+
+    // Meter background
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.fillRect(barX - barW / 2, barY - barH / 2, barW, barH);
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(barX - barW / 2, barY - barH / 2, barW, barH);
+
+    // Green zone [-130, -50]
+    ctx.fillStyle = '#2ecc71';
+    ctx.fillRect(barX - 130, barY - barH / 2 + 2, 80, barH - 4);
+
+    // Target prompt text
+    ctx.fillStyle = TUG_TEXT;
+    ctx.font = TUG_FONT_BOLD;
+    ctx.textAlign = 'center';
+    ctx.fillText('发力区', barX - 90, barY + 5);
+
+    // Pointer
+    const pointerX = barX + pointerPos;
+    ctx.fillStyle = '#e74c3c';
+    ctx.fillRect(pointerX - 4, barY - barH / 2 - 4, 8, barH + 8);
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(pointerX - 4, barY - barH / 2 - 4, 8, barH + 8);
+    
+    // Tug-of-war Tension Indicator (horizontal bar above meter)
+    const tenY = barY - 45;
+    ctx.fillStyle = 'rgba(255,255,255,0.2)';
+    ctx.fillRect(barX - 120, tenY, 240, 10);
+    ctx.strokeStyle = '#fff';
+    ctx.strokeRect(barX - 120, tenY, 240, 10);
+    
+    // Progress fill
+    const fillW = (pullProgress / 100) * 120;
+    ctx.fillStyle = fillW < 0 ? '#3498db' : '#e74c3c';
+    ctx.fillRect(barX, tenY + 1, fillW, 8);
+    
+    // Center divider
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(barX - 1, tenY - 2, 2, 14);
+    
+    ctx.font = TUG_FONT;
+    ctx.fillStyle = TUG_TEXT;
+    ctx.textAlign = 'right';
+    ctx.fillText('姐姐', barX - 128, tenY + 10);
+    ctx.textAlign = 'left';
+    ctx.fillText('开心', barX + 128, tenY + 10);
+  }
+
+  function loop() {
+    frame++;
+
+    if (qtePhase === 'countdown') {
+      countdownTimer++;
+      if (countdownTimer > 42) {
+        countdownTimer = 0;
+        countdownStep--;
+        if (countdownStep < 0) {
+          qtePhase = 'play';
+        }
+      }
+    } else if (qtePhase === 'play' && !done) {
+      const speed = 2.2 + currentRound * 0.85;
+      pointerPos += pointerDir * speed;
+      if (currentRound >= 2) pointerPos += (Math.random() - 0.5) * 3.5;
+      if (pointerPos > 146) {
+        pointerPos = 146;
+        pointerDir = -1;
+      } else if (pointerPos < -146) {
+        pointerPos = -146;
+        pointerDir = 1;
+      }
+      if (frame % 5 === 0) {
+        pullProgress += 0.35 + currentRound * 0.08;
+        if (pullProgress > 55) pullProgress = 55;
+      }
+    }
+
+    if (sisterPullOffset > 0) sisterPullOffset -= 1;
+    else if (sisterPullOffset < 0) sisterPullOffset += 0.5;
+    if (dogPullOffset < 0) dogPullOffset += 0.5;
+    else if (dogPullOffset > 0) dogPullOffset -= 0.5;
+
+    let sx = 0, sy = 0;
+    if (screenShake > 0) {
+      sx = (Math.random() - 0.5) * screenShake;
+      sy = (Math.random() - 0.5) * screenShake;
+      screenShake *= 0.85;
+      if (screenShake < 0.5) screenShake = 0;
+    }
+
+    ctx.save();
+    ctx.translate(sx, sy);
+
+    drawBackground();
+    drawTugDog(frame);
+    drawRubberRing();
+    drawSisterHands();
+    if (qtePhase === 'play' || qtePhase === 'done') drawQTEMeter();
+
+    ctx.fillStyle = TUG_TEXT;
+    ctx.textAlign = 'center';
+    if (qtePhase === 'countdown') {
+      const cdLabel = countdownStep > 0 ? String(countdownStep) : '开始！';
+      ctx.font = TUG_FONT_BOLD;
+      ctx.fillText(cdLabel, W / 2, TUG_BOTTOM_Y3);
+      ctx.font = TUG_FONT;
+      ctx.fillText('和开心拔河 · 准备好了吗', W / 2, TUG_BOTTOM_Y2);
+    } else {
+      ctx.font = TUG_FONT_BOLD;
+      ctx.fillText(`姐姐发力: ${currentRound} / ${totalRounds}`, W / 2, TUG_BOTTOM_Y3);
+      ctx.font = TUG_FONT;
+      ctx.fillText('指针进入左侧绿色区时，点按屏幕或按空格发力', W / 2, TUG_BOTTOM_Y2);
+      if (consecutiveMisses > 0 && !done) {
+        ctx.font = TUG_FONT;
+        ctx.fillText(`连续失误 ${consecutiveMisses}/3 · 开心就要赢啦`, W / 2, TUG_BOTTOM_Y1);
+      }
+    }
+
+    if (flashColor && flashTimer > 0) {
+      ctx.fillStyle = flashColor;
+      ctx.fillRect(0, 0, W, H);
+      flashTimer--;
+    } else {
+      flashColor = null;
+    }
+
+    ctx.restore();
+
+    if (!done || flashTimer > 0) {
+      loops.task7 = requestAnimationFrame(loop);
+    }
+  }
+
+  loops.task7 = requestAnimationFrame(loop);
+}
+
+function resetTask7() {
+  startTask7();
+}
+
+// ===== 路由 =====
+/** 星图关卡 n → 内部 screen-task 编号（与 HTML 中 canvas 对应） */
+const LEVEL_TO_SCREEN = { 1: 1, 2: 7, 3: 4, 4: 3, 5: 6, 6: 2 };
+/** 星图关卡 n → 启动函数（5=唤醒开心 task6，6=点亮河灯 task2） */
+const LEVEL_START_FN = {
+  1: startTask1, 2: startTask7, 3: startTask4, 4: startTask3,
+  5: startTask6, 6: startTask2
+};
+
+function startTask(n) {
+  stopAllLoops();
+  if (n >= 1 && n <= 6) {
+    showScreen('screen-task' + LEVEL_TO_SCREEN[n]);
+  }
+  const fn = LEVEL_START_FN[n];
+  if (fn) fn();
+}
+
+function memorialApplyAssetUrlsToDom() {
+  document.querySelectorAll('[data-memorial-asset]').forEach((el) => {
+    const key = el.getAttribute('data-memorial-asset');
+    const url = (typeof MEMORIAL_EMBEDDED !== 'undefined' && MEMORIAL_EMBEDDED[key]) ? MEMORIAL_EMBEDDED[key] : '';
+    if (url) el.src = url;
+  });
+}
+
+/** 可分离盒模糊 Alpha，用于边缘羽化 */
+function memorialBoxBlurAlpha(src, w, h, radius) {
+  const n = w * h;
+  const rad = Math.max(1, radius | 0);
+  const dim = rad * 2 + 1;
+  const tmp = new Float32Array(n);
+  const out = new Float32Array(n);
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      let s = 0;
+      for (let k = -rad; k <= rad; k++) {
+        s += src[y * w + Math.min(w - 1, Math.max(0, x + k))];
+      }
+      tmp[y * w + x] = s / dim;
+    }
+  }
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      let s = 0;
+      for (let k = -rad; k <= rad; k++) {
+        s += tmp[Math.min(h - 1, Math.max(0, y + k)) * w + x];
+      }
+      out[y * w + x] = s / dim;
+    }
+  }
+  return out;
+}
+
+/** 边缘毛玻璃感：羽化透明通道 + 淡紫高光晕 */
+function memorialFeatherFrostEdges(d, w, h, radius) {
+  const n = w * h;
+  const orig = new Float32Array(n);
+  for (let i = 0; i < n; i++) orig[i] = d[i * 4 + 3] / 255;
+  let soft = memorialBoxBlurAlpha(orig, w, h, radius);
+  soft = memorialBoxBlurAlpha(soft, w, h, radius);
+  const fr = 228 / 255;
+  const fg = 222 / 255;
+  const fb = 248 / 255;
+  for (let i = 0; i < n; i++) {
+    const pi = i * 4;
+    const a = soft[i];
+    if (a < 0.004) {
+      d[pi] = d[pi + 1] = d[pi + 2] = d[pi + 3] = 0;
+      continue;
+    }
+    const oa = orig[i];
+    const edge = oa > 0.03 && a < oa * 0.9;
+    const frost = edge ? Math.min(0.5, (oa - a) * 2.8 + 0.1) : 0;
+    let r = (d[pi] / 255) * oa;
+    let g = (d[pi + 1] / 255) * oa;
+    let b = (d[pi + 2] / 255) * oa;
+    r = r * (1 - frost) + fr * frost * a;
+    g = g * (1 - frost) + fg * frost * a;
+    b = b * (1 - frost) + fb * frost * a;
+    d[pi] = Math.min(255, Math.round((r / a) * 255));
+    d[pi + 1] = Math.min(255, Math.round((g / a) * 255));
+    d[pi + 2] = Math.min(255, Math.round((b / a) * 255));
+    d[pi + 3] = Math.round(a * 255);
+  }
+}
+
+/**
+ * 从四边泛洪填充抠背景，再羽化边缘（毛玻璃感），保留狗身黑色毛发。
+ */
+function memorialKnockoutDogBlackBg(imgEl) {
+  if (!imgEl || imgEl.dataset.knockoutDone === '1') return;
+  const run = () => {
+    if (!imgEl.naturalWidth || imgEl.naturalWidth < 2) return;
+    try {
+      const w = imgEl.naturalWidth;
+      const h = imgEl.naturalHeight;
+      const c = document.createElement('canvas');
+      c.width = w;
+      c.height = h;
+      const ctx = c.getContext('2d');
+      ctx.drawImage(imgEl, 0, 0);
+      const id = ctx.getImageData(0, 0, w, h);
+      const d = id.data;
+      const isBg = (i) => {
+        const r = d[i];
+        const g = d[i + 1];
+        const b = d[i + 2];
+        /* 仅纯黑背景（#000~#0c），避免把头部黑毛（约 #14141c）当下溢出背景 */
+        if (r < 12 && g < 12 && b < 14) return true;
+        if (r < 100 && g < 85 && b < 145 && b > r + 6 && g < r + 22) return true;
+        return false;
+      };
+      const visited = new Uint8Array(w * h);
+      const q = [];
+      const tryPush = (x, y) => {
+        if (x < 0 || y < 0 || x >= w || y >= h) return;
+        const idx = y * w + x;
+        if (visited[idx]) return;
+        const pi = idx * 4;
+        if (!isBg(pi)) return;
+        visited[idx] = 1;
+        q.push(idx);
+      };
+      for (let x = 0; x < w; x++) {
+        tryPush(x, 0);
+        tryPush(x, h - 1);
+      }
+      for (let y = 0; y < h; y++) {
+        tryPush(0, y);
+        tryPush(w - 1, y);
+      }
+      while (q.length) {
+        const idx = q.pop();
+        const pi = idx * 4;
+        d[pi + 3] = 0;
+        const x = idx % w;
+        const y = (idx / w) | 0;
+        tryPush(x + 1, y);
+        tryPush(x - 1, y);
+        tryPush(x, y + 1);
+        tryPush(x, y - 1);
+      }
+      const featherR = Math.max(2, Math.min(5, Math.round(Math.min(w, h) / 72)));
+      memorialFeatherFrostEdges(d, w, h, featherR);
+      ctx.putImageData(id, 0, 0);
+      imgEl.src = c.toDataURL('image/png');
+      imgEl.dataset.knockoutDone = '1';
+      imgEl.classList.add('sprite-soft-ready');
+      imgEl.style.mixBlendMode = 'normal';
+      imgEl.style.background = 'transparent';
+    } catch (e) {}
+  };
+  if (imgEl.complete) run();
+  else imgEl.addEventListener('load', run, { once: true });
+}
+
+function memorialInitDogSprites() {
+  /* 主界面/星图立绘：不跑自动抠图（打包版否则会误删头部黑毛）；本地无 assets.js 时本来就不抠 */
+  document.querySelectorAll('[data-memorial-asset="dog"]').forEach((el) => {
+    if (el.classList.contains('intro-dog-img') || el.closest('.map-dog-avatar')) return;
+    memorialKnockoutDogBlackBg(el);
+  });
+}
+
+function memorialInitAssets() {
+  memorialApplyAssetUrlsToDom();
+  return true;
+}
+
+function memorialDeferDogKnockout() {
+  setTimeout(() => {
+    try { memorialInitDogSprites(); } catch (e) {}
+  }, 120);
+}
+
+function memorialOnAssetsLoadFail() {
+  const err = $('memorial-load-error');
+  const overlay = $('memorial-boot-overlay');
+  if (overlay) overlay.classList.add('hidden');
+  if (err) err.style.display = 'flex';
+}
+
+function memorialStartApp() {
+  const overlay = $('memorial-boot-overlay');
+  try {
+    if (typeof MEMORIAL_EMBEDDED === 'undefined' && window.memorialAssetsLoadFailed) {
+      memorialOnAssetsLoadFail();
+      return;
+    }
+    memorialInitAssets();
+    initMemorialBgmUi();
+    memorialInitWechatCompat();
+    memorialRestoreFromStorage();
+    updateMerit();
+    runStarfieldOnCanvas('intro-canvas', 'intro');
+    memorialDeferDogKnockout();
+  } catch (e) {
+    console.error('memorialStartApp', e);
+    memorialOnAssetsLoadFail();
+    return;
+  }
+  if (overlay) {
+    requestAnimationFrame(() => overlay.classList.add('hidden'));
+  }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', memorialStartApp);
+} else {
+  memorialStartApp();
+}
+</script>
+</body>
+</html>
