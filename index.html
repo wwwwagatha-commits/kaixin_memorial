@@ -528,7 +528,7 @@
 
   /* ===== 任务五顶栏 ===== */
   #screen-task5.task5-screen {
-    padding: 48px 16px 20px;
+    padding: 0;
     position: relative;
   }
   .task5-topbar {
@@ -795,7 +795,96 @@
 
   /* ===== task5 ===== */
   #screen-task5 {
-    background: linear-gradient(180deg, #f0e6d2 0%, #ead5b0 50%, #d4b896 100%);
+    padding: 0;
+    overflow: hidden;
+    background: #0a1628;
+  }
+  .task5-scene {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center center;
+    image-rendering: pixelated;
+    pointer-events: none;
+  }
+  .task5-dog-bubble {
+    left: 66%;
+    top: 27%;
+    width: max-content;
+    max-width: 300px;
+    margin: 0;
+    transform: translateX(-50%);
+    text-align: center;
+    cursor: pointer;
+    z-index: 35;
+    display: none;
+    animation: none;
+  }
+  .task5-dog-bubble.show {
+    display: block;
+    animation: task5DogBubblePop 0.35s ease;
+  }
+  @keyframes task5DogBubblePop {
+    from { transform: translateX(-50%) scale(0.94); opacity: 0; }
+    to { transform: translateX(-50%) scale(1); opacity: 1; }
+  }
+  .task5-dog-bubble::after {
+    left: 50%;
+    margin-left: -10px;
+  }
+  .task5-sent-bubble {
+    position: absolute;
+    bottom: 200px;
+    left: 0;
+    right: 0;
+    width: max-content;
+    max-width: 320px;
+    margin: 0 auto;
+    background: rgba(255,248,220,0.95);
+    border: 2px solid #ffd700;
+    border-radius: 12px;
+    padding: 14px 20px;
+    font-size: 13px;
+    color: #4a3728;
+    text-align: center;
+    line-height: 1.8;
+    z-index: 50;
+    animation: task5SentBubblePop 0.4s ease;
+  }
+  @keyframes task5SentBubblePop {
+    from { transform: scale(0.94); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  .task5-bubble-hint {
+    display: block;
+    margin-top: 10px;
+    font-size: 11px;
+    color: #a06020;
+  }
+  #task5-parchment {
+    position: absolute;
+    bottom: 44px;
+    left: 0;
+    right: 0;
+    width: 380px;
+    max-width: calc(100% - 32px);
+    margin: 0 auto;
+    z-index: 30;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+  #task5-parchment.show {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: all;
+    animation: task5ParchmentPop 0.35s ease;
+  }
+  @keyframes task5ParchmentPop {
+    from { transform: scale(0.94); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
   }
 
   /* ===== task7 ===== */
@@ -918,6 +1007,15 @@
     border-left: 10px solid transparent;
     border-right: 10px solid transparent;
     border-top: 12px solid #ffd700;
+  }
+  #lamp-bubble {
+    max-width: 260px;
+    width: max-content;
+    box-sizing: border-box;
+    word-break: break-word;
+  }
+  #lamp-bubble::after {
+    left: var(--lamp-tail-left, 20px);
   }
 
   /* 爱心进度 */
@@ -1133,16 +1231,25 @@
     </div>
   </div>
 
-  <!-- ===== 任务五：留言 ===== -->
+  <!-- ===== 任务五：留言（关卡七·终章） ===== -->
   <div id="screen-task5" class="screen task5-screen">
-    <div class="footprints-container" id="footprints"></div>
-    <div class="parchment">
+    <img id="task5-scene" class="task5-scene" src="" alt="" decoding="async" />
+    <div class="task5-topbar">
+      <button type="button" class="back-btn" onclick="backToMap()">← 返回</button>
+    </div>
+    <div id="task5-dog-bubble" class="task5-dog-bubble bubble" role="button" tabindex="0"
+      onclick="dismissTask5IntroBubble()" onkeydown="if(event.key==='Enter'||event.key===' ')dismissTask5IntroBubble()">
+      愿力还需要被听到才行……
+      <span class="task5-bubble-hint">点击继续 ▶</span>
+    </div>
+    <div id="task5-parchment" class="parchment">
       <div class="parchment-title">🪶 小狗留言箱</div>
-      <div class="parchment-prompt">愿力还需要被听到哦，替开心写下它想对你说的话吧……</div>
+      <div class="parchment-prompt">替开心说点什么吧</div>
       <textarea class="message-input" id="farewell-input"
         placeholder="不要哭哦，这边的肉干很好吃哦" maxlength="60" rows="3"></textarea>
       <button class="send-btn" onclick="sendFarewell()">📮 寄出</button>
     </div>
+    <div class="footprints-container" id="footprints"></div>
   </div>
 
   <!-- ===== 任务六：午后客厅 ===== -->
@@ -1193,7 +1300,7 @@
     <div id="ending-tagline" class="ending-tagline" aria-live="polite"></div>
     <div id="ending-dim-layer" class="ending-dim-layer" aria-hidden="true"></div>
     <div id="ending-outro" class="ending-outro">
-      <button type="button" class="ending-well-btn" id="ending-well-btn" hidden>好的，开心。我会好好的。再见。</button>
+      <button type="button" class="ending-well-btn" id="ending-well-btn" hidden>开心，我好想你。</button>
     </div>
   </div>
 
@@ -1209,8 +1316,8 @@
 <script src="memorial-assets.js" onerror="window.memorialAssetsLoadFailed=true"></script>
 <script>
 const W = 480, H = 680;
-/** 调试：true = 任意关卡可进；定版发布前请改回 false */
-const MEMORIAL_DEBUG_UNLOCK_ALL_LEVELS = true;
+/** 调试：true = 任意关卡可进；正式发布请保持 false */
+const MEMORIAL_DEBUG_UNLOCK_ALL_LEVELS = false;
 let completedTasks = new Set();
 let meritCount = 0;
 
@@ -1840,6 +1947,7 @@ function backFromEnding() {
   const well = $('ending-well-btn');
   if (well) {
     well.hidden = true;
+    well.textContent = '开心，我好想你。';
     well.onclick = null;
   }
   showMap();
@@ -1875,6 +1983,7 @@ function updateMerit() {
     const locked = !isLevelUnlocked(i) && !lit;
     btn.classList.toggle('lit', lit);
     btn.classList.toggle('locked', locked);
+    btn.disabled = locked;
   }
   updateMapDogAvatar();
   const introReset = $('intro-reset-progress-btn');
@@ -2175,9 +2284,13 @@ function startTask2() {
     { x:415, y:440, icon:'🎾', label:'球球', msg:'最喜欢追球球了，追完还要姐姐捡！' }
   ];
   const litLamps = new Set();
-  let activeLamp = null;
+  let holdingLamp = null;
   let holdTimer = null;
   let holdProgress = 0;
+  const LAMP_HOLD_TICKS = 24;
+  const LAMP_HOLD_MS = 50;
+  const LAMP_BUBBLE_W = 260;
+  const LAMP_HIT_R = 30;
   let frame = 0;
   let meteorsSent = false;
   let done = false;
@@ -2233,58 +2346,118 @@ function startTask2() {
     }
   }
 
-  canvas.addEventListener('click', e => {
-    if(done) return;
-    const rect = canvas.getBoundingClientRect();
-    const mx = (e.clientX-rect.left)*(W/rect.width);
-    const my = (e.clientY-rect.top)*(H/rect.height);
-    lampData.forEach((l,i) => {
-      if(litLamps.has(i)) return;
-      const dx=mx-l.x, dy=my-l.y;
-      if(Math.sqrt(dx*dx+dy*dy)<30) {
-        playMemorialSfx('tap');
-        activeLamp = i;
-        const bubble = $('lamp-bubble');
-        bubble.textContent = l.msg;
-        bubble.style.display = 'block';
-        bubble.style.left = (l.x - 20) + 'px';
-        bubble.style.top = (l.y - 100) + 'px';
-        // 显示爱心按钮
-        $('love-container').innerHTML = `
-          <button class="love-btn" id="love-btn"
-            style="left:${l.x-50}px;top:${l.y+60}px;"
-            onclick="startLoveHold(${i})">
-            长按点亮 💛
-          </button>`;
-      }
-    });
-  });
+  function positionLampBubble(l) {
+    const bubble = $('lamp-bubble');
+    if (!bubble) return;
+    const margin = 12;
+    const parent = canvas.parentElement;
+    const parentRect = parent ? parent.getBoundingClientRect() : { left: 0, top: 0, width: W };
+    const canvasRect = canvas.getBoundingClientRect();
+    const scale = canvasRect.width / W;
+    const bubbleW = Math.min(LAMP_BUBBLE_W, parentRect.width - margin * 2);
+    const lampScreenX = (canvasRect.left - parentRect.left) + l.x * scale;
+    let left = lampScreenX - bubbleW / 2;
+    left = Math.max(margin, Math.min(left, parentRect.width - bubbleW - margin));
+    const top = (canvasRect.top - parentRect.top) + l.y * scale - 108 * scale;
+    bubble.style.left = left + 'px';
+    bubble.style.top = Math.max(72, top) + 'px';
+    bubble.style.maxWidth = bubbleW + 'px';
+    const tail = Math.max(16, Math.min(bubbleW - 16, lampScreenX - left));
+    bubble.style.setProperty('--lamp-tail-left', tail + 'px');
+  }
 
-  window.startLoveHold = function(idx) {
+  function updateLampHoldBubble(idx) {
+    const l = lampData[idx];
+    const bubble = $('lamp-bubble');
+    if (!bubble) return;
+    const hearts = Math.min(3, Math.ceil((holdProgress / LAMP_HOLD_TICKS) * 3));
+    bubble.innerHTML =
+      l.msg +
+      '<div style="margin-top:8px;color:#a06020;font-size:11px">长按点亮 ' +
+      '💛'.repeat(Math.max(1, hearts)) +
+      '</div>';
+    positionLampBubble(l);
+    bubble.style.display = 'block';
+  }
+
+  function clearLampHold() {
+    if (holdTimer) {
+      clearInterval(holdTimer);
+      holdTimer = null;
+    }
     holdProgress = 0;
-    const btn = $('love-btn');
-    if(!btn) return;
-    let interval = setInterval(() => {
+    holdingLamp = null;
+  }
+
+  function finishLamp(idx) {
+    litLamps.add(idx);
+    playMemorialSfx('chime');
+    $('lit-count').textContent = litLamps.size;
+    const bubble = $('lamp-bubble');
+    if (bubble) bubble.style.display = 'none';
+    clearLampHold();
+    if (litLamps.size === 5 && !done) {
+      done = true;
+      launchMeteors();
+      setTimeout(() => $('complete2').classList.add('show'), 2000);
+    }
+  }
+
+  function lampHitIndex(mx, my) {
+    for (let i = lampData.length - 1; i >= 0; i--) {
+      if (litLamps.has(i)) continue;
+      const l = lampData[i];
+      const dx = mx - l.x;
+      const dy = my - l.y;
+      if (dx * dx + dy * dy < LAMP_HIT_R * LAMP_HIT_R) return i;
+    }
+    return null;
+  }
+
+  function canvasCoords(e) {
+    const rect = canvas.getBoundingClientRect();
+    return {
+      mx: (e.clientX - rect.left) * (W / rect.width),
+      my: (e.clientY - rect.top) * (H / rect.height)
+    };
+  }
+
+  canvas.style.touchAction = 'none';
+
+  canvas.addEventListener('pointerdown', (e) => {
+    if (done) return;
+    const { mx, my } = canvasCoords(e);
+    const idx = lampHitIndex(mx, my);
+    if (idx === null) return;
+    e.preventDefault();
+    try { canvas.setPointerCapture(e.pointerId); } catch (err) {}
+    clearLampHold();
+    holdingLamp = idx;
+    holdProgress = 0;
+    playMemorialSfx('tap');
+    updateLampHoldBubble(idx);
+    holdTimer = setInterval(() => {
+      if (holdingLamp !== idx) return;
       holdProgress++;
-      btn.textContent = '💛'.repeat(Math.ceil(holdProgress/10)) + '...';
-      if(holdProgress >= 30) {
-        clearInterval(interval);
-        litLamps.add(idx);
-        playMemorialSfx('chime');
-        $('lit-count').textContent = litLamps.size;
-        $('lamp-bubble').style.display = 'none';
-        $('love-container').innerHTML = '';
-        activeLamp = null;
-        if(litLamps.size === 5 && !done) {
-          done = true;
-          launchMeteors();
-          setTimeout(() => $('complete2').classList.add('show'), 2000);
-        }
-      }
-    }, 100);
-    btn.addEventListener('mouseup', () => clearInterval(interval));
-    btn.addEventListener('touchend', () => clearInterval(interval));
-  };
+      updateLampHoldBubble(idx);
+      if (holdProgress >= LAMP_HOLD_TICKS) finishLamp(idx);
+    }, LAMP_HOLD_MS);
+  }, { passive: false });
+
+  function endLampHold(e) {
+    if (holdingLamp !== null && holdProgress < LAMP_HOLD_TICKS) {
+      const bubble = $('lamp-bubble');
+      if (bubble) bubble.style.display = 'none';
+    }
+    clearLampHold();
+    try { canvas.releasePointerCapture(e.pointerId); } catch (err) {}
+  }
+
+  canvas.addEventListener('pointerup', endLampHold);
+  canvas.addEventListener('pointercancel', endLampHold);
+  canvas.addEventListener('pointerleave', (e) => {
+    if (e.buttons === 0) endLampHold(e);
+  });
 
   function loop() {
     frame++;
@@ -3038,8 +3211,10 @@ function sendFarewell() {
   
   // 延迟后过渡到 Ending 场景
   setTimeout(()=>{
+    const parchment = $('task5-parchment');
+    if (parchment) parchment.classList.remove('show');
     const bubble = document.createElement('div');
-    bubble.style.cssText='position:absolute;bottom:200px;left:50%;transform:translateX(-50%);background:rgba(255,248,220,0.95);border:2px solid #ffd700;border-radius:12px;padding:14px 20px;font-size:13px;color:#4a3728;text-align:center;max-width:320px;line-height:1.8;animation:popIn 0.4s ease;z-index:50;';
+    bubble.className = 'task5-sent-bubble';
     bubble.innerHTML = `<div style="font-size:22px;margin-bottom:8px">🐾 ✨</div>字迹变成了爪印，飘向天空……<br><span style="color:#a06020;font-style:italic">「${msg}」</span><br><br>开心记住了 💛`;
     document.querySelector('#screen-task5').appendChild(bubble);
     setTimeout(()=>{
@@ -3051,10 +3226,27 @@ function sendFarewell() {
   }, 2000);
 }
 
+function dismissTask5IntroBubble() {
+  const bubble = $('task5-dog-bubble');
+  const parchment = $('task5-parchment');
+  if (bubble) bubble.classList.remove('show');
+  if (parchment) parchment.classList.add('show');
+  const inputEl = $('farewell-input');
+  if (inputEl) inputEl.focus();
+}
+
 // ===== 终局 =====
 function startEnding() {
   stopAllLoops();
   showScreen('screen-task5');
+  const scene = $('task5-scene');
+  if (scene) scene.src = memorialAssetSrc('task5_bg.png');
+  const bubble = $('task5-dog-bubble');
+  const parchment = $('task5-parchment');
+  if (bubble) bubble.classList.add('show');
+  if (parchment) parchment.classList.remove('show');
+  const fp = $('footprints');
+  if (fp) fp.innerHTML = '';
   const inputEl = $('farewell-input');
   if (inputEl) {
     inputEl.value = '';
@@ -3086,7 +3278,7 @@ function runEndingSequenceReal() {
   if (outro) outro.classList.remove('show');
   if (wellBtn) {
     wellBtn.hidden = true;
-    wellBtn.textContent = '好的，开心。我会好好的。再见。';
+    wellBtn.textContent = '开心，我好想你。';
     wellBtn.onclick = null;
   }
 
@@ -3112,13 +3304,44 @@ function runEndingSequenceReal() {
   let openingT0 = 0;
   let endingTyper = null;
   let dogAlpha = 1;
-  let lightGateAlpha = 0.92;
   let fadeIntoGateWait = 0;
   const ENDING_DOG_X = W * 0.5;
-  const ENDING_DOG_Y = H * 0.62;
-  const ENDING_DOG_DW = 172;
+  const ENDING_DOG_Y = H * 0.58 + 76;
+  const ENDING_DOG_DW = 168;
+  const endingBgImg = new Image();
+  let endingBgReady = false;
+  endingBgImg.onload = () => { endingBgReady = true; };
+  endingBgImg.onerror = () => { endingBgReady = false; };
+  endingBgImg.src = memorialAssetSrc('ending_bg.png');
   let photoStartFrame = 0;
   let outroScheduled = false;
+  let endingOutroStep = 0;
+  const ENDING_OUTRO_LINES = ['开心，我好想你。', '再见，开心。', '我会好好的。'];
+
+  function advanceEndingOutro() {
+    if (!wellBtn) return;
+    endingOutroStep++;
+    if (endingOutroStep < ENDING_OUTRO_LINES.length) {
+      wellBtn.textContent = ENDING_OUTRO_LINES[endingOutroStep];
+      return;
+    }
+    if (outro) outro.classList.remove('show');
+    if (dimLayer) {
+      dimLayer.classList.remove('on');
+      dimLayer.style.opacity = '0';
+      dimLayer.style.transition = '';
+    }
+    mainPhase = 'photo';
+    photoStartFrame = 0;
+  }
+
+  function showEndingOutroButton() {
+    if (!wellBtn) return;
+    endingOutroStep = 0;
+    wellBtn.textContent = ENDING_OUTRO_LINES[0];
+    wellBtn.hidden = false;
+    wellBtn.onclick = advanceEndingOutro;
+  }
 
   const ENDING_DIALOG_GROUPS = [
     { text: `姐姐，终于见到你啦！你写给开心的话，我都看到啦：「${farewellMessage}」`, pose: 'stand' },
@@ -3160,37 +3383,6 @@ function runEndingSequenceReal() {
       b: Math.random() > 0.92 ? 1.4 : 1
     });
   }
-  const GATE_W = 258;
-  const GATE_H = 302;
-  const ENDING_GATE_CX = W * 0.5;
-  const ENDING_GATE_BOTTOM = ENDING_DOG_Y + 8;
-  const ENDING_GATE_ARCH_R = GATE_W * 0.5;
-  const ENDING_GATE_ARCH_CY = ENDING_GATE_BOTTOM - (GATE_H - ENDING_GATE_ARCH_R);
-
-  function endingArchPath(cx, bottomY, gw, gh) {
-    const halfW = gw / 2;
-    const archR = gw / 2;
-    const archCy = bottomY - (gh - archR);
-    ctx.beginPath();
-    ctx.moveTo(cx - halfW, bottomY);
-    ctx.lineTo(cx - halfW, archCy);
-    ctx.arc(cx, archCy, archR, Math.PI, 0, false);
-    ctx.lineTo(cx + halfW, bottomY);
-    ctx.closePath();
-  }
-
-  function getGateRect() {
-    return {
-      cx: ENDING_GATE_CX,
-      bottomY: ENDING_GATE_BOTTOM,
-      topY: ENDING_GATE_BOTTOM - GATE_H,
-      archCy: ENDING_GATE_ARCH_CY,
-      archR: ENDING_GATE_ARCH_R,
-      gw: GATE_W,
-      gh: GATE_H
-    };
-  }
-
   function clearEndingTyper() {
     if (endingTyper) {
       clearInterval(endingTyper);
@@ -3198,24 +3390,9 @@ function runEndingSequenceReal() {
     }
   }
 
-  function drawSeaSkyGrass() {
-    const g = ctx.createLinearGradient(0, 0, 0, H);
-    g.addColorStop(0, '#0c0822');
-    g.addColorStop(0.35, '#1a1240');
-    g.addColorStop(0.62, '#2a1a58');
-    g.addColorStop(0.78, '#1e3060');
-    g.addColorStop(1, '#0d2818');
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, W, H);
-
-    const milky = ctx.createLinearGradient(0, H * 0.15, W, H * 0.45);
-    milky.addColorStop(0, 'rgba(255,255,255,0)');
-    milky.addColorStop(0.45, 'rgba(200,190,255,0.08)');
-    milky.addColorStop(0.55, 'rgba(255,240,220,0.06)');
-    milky.addColorStop(1, 'rgba(255,255,255,0)');
-    ctx.fillStyle = milky;
-    ctx.fillRect(0, 0, W, H * 0.55);
-
+  function drawEndingTwinkleStars() {
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
     stars.forEach((st) => {
       st.t += st.s;
       const a = (0.25 + 0.75 * Math.abs(Math.sin(st.t))) * st.b;
@@ -3223,123 +3400,34 @@ function runEndingSequenceReal() {
       ctx.arc(st.x, st.y, st.r, 0, Math.PI * 2);
       ctx.fillStyle = 'rgba(255,252,220,' + Math.min(1, a) + ')';
       ctx.fill();
+      if (st.b > 1.1 && a > 0.55) {
+        ctx.beginPath();
+        ctx.arc(st.x, st.y, st.r * 2.2, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255,255,255,' + (a * 0.22) + ')';
+        ctx.fill();
+      }
     });
-
-    const grassTop = H * 0.52;
-    const gg = ctx.createLinearGradient(0, grassTop, 0, H);
-    gg.addColorStop(0, '#1a4a28');
-    gg.addColorStop(0.35, '#2d6a32');
-    gg.addColorStop(1, '#0f2410');
-    ctx.fillStyle = gg;
-    ctx.fillRect(0, grassTop, W, H - grassTop);
-    ctx.fillStyle = 'rgba(0,0,0,0.18)';
-    ctx.fillRect(0, grassTop, W, 4);
+    ctx.restore();
   }
 
-  function drawLightGate(fr) {
-    if (lightGateAlpha <= 0.01) return;
-    const g = getGateRect();
-    const x = g.cx;
-    const bottomY = g.bottomY;
-    const gw = g.gw;
-    const gh = g.gh;
-    const archCy = g.archCy;
-    const pulse = 0.9 + 0.1 * Math.sin(fr * 0.05);
-    const coreX = x;
-    const coreY = archCy - g.archR * 0.12;
-    const flicker = 0.85 + 0.15 * Math.abs(Math.sin(fr * 0.07 + 0.4));
-
-    ctx.save();
-    ctx.globalAlpha = lightGateAlpha;
-    ctx.globalCompositeOperation = 'lighter';
-
-    const ground = ctx.createRadialGradient(x, bottomY, 4, x, bottomY, gw * 0.95);
-    ground.addColorStop(0, 'rgba(255,240,160,' + (0.42 * flicker) + ')');
-    ground.addColorStop(0.45, 'rgba(255,210,100,0.18)');
-    ground.addColorStop(1, 'rgba(255,180,80,0)');
-    ctx.fillStyle = ground;
-    ctx.beginPath();
-    ctx.ellipse(x, bottomY + 6, gw * 0.62 * pulse, 28, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    endingArchPath(x, bottomY, gw, gh);
-    ctx.save();
-    ctx.clip();
-
-    const rayN = 13;
-    for (let i = 0; i < rayN; i++) {
-      const t = i / (rayN - 1);
-      const ang = -Math.PI * 0.92 + t * Math.PI * 0.84;
-      const sway = Math.sin(fr * 0.04 + i * 0.7) * 0.06;
-      const len = (bottomY - coreY + 120) * (0.82 + (i % 3) * 0.08);
-      const x2 = coreX + Math.cos(ang + sway) * len * 1.05;
-      const y2 = coreY + Math.sin(ang + sway) * len;
-      const rg = ctx.createLinearGradient(coreX, coreY, x2, y2);
-      rg.addColorStop(0, 'rgba(255,255,220,' + (0.7 * flicker) + ')');
-      rg.addColorStop(0.25, 'rgba(255,235,160,' + (0.45 * flicker) + ')');
-      rg.addColorStop(0.65, 'rgba(255,200,90,0.12)');
-      rg.addColorStop(1, 'rgba(255,180,70,0)');
-      ctx.strokeStyle = rg;
-      ctx.lineWidth = 10 + (i % 4) * 3;
-      ctx.lineCap = 'round';
-      ctx.beginPath();
-      ctx.moveTo(coreX, coreY);
-      ctx.lineTo(x2, y2);
-      ctx.stroke();
+  function drawEndingScene() {
+    if (endingBgReady && endingBgImg.complete && endingBgImg.naturalWidth > 2) {
+      const iw = endingBgImg.naturalWidth;
+      const ih = endingBgImg.naturalHeight;
+      const scale = Math.max(W / iw, H / ih);
+      const dw = iw * scale;
+      const dh = ih * scale;
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(endingBgImg, (W - dw) / 2, (H - dh) / 2, dw, dh);
+    } else {
+      const g = ctx.createLinearGradient(0, 0, 0, H);
+      g.addColorStop(0, '#0c0822');
+      g.addColorStop(0.5, '#1a1240');
+      g.addColorStop(1, '#0d2818');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, W, H);
     }
-
-    for (let j = 0; j < 5; j++) {
-      const fan = ctx.createLinearGradient(x, coreY, x, bottomY + 40);
-      fan.addColorStop(0, 'rgba(255,255,230,' + (0.35 * flicker) + ')');
-      fan.addColorStop(0.5, 'rgba(255,220,130,0.14)');
-      fan.addColorStop(1, 'rgba(255,200,90,0)');
-      ctx.fillStyle = fan;
-      const spread = (gw * 0.22) * (1 + j * 0.12);
-      ctx.beginPath();
-      ctx.moveTo(x, coreY);
-      ctx.lineTo(x - spread, bottomY + 20);
-      ctx.lineTo(x + spread, bottomY + 20);
-      ctx.closePath();
-      ctx.fill();
-    }
-
-    const bodyGrad = ctx.createLinearGradient(x - gw / 2, archCy - g.archR, x + gw / 2, bottomY);
-    bodyGrad.addColorStop(0, 'rgba(255,255,240,0.97)');
-    bodyGrad.addColorStop(0.35, 'rgba(255,236,170,0.78)');
-    bodyGrad.addColorStop(0.7, 'rgba(255,210,110,0.42)');
-    bodyGrad.addColorStop(1, 'rgba(255,185,80,0.1)');
-    ctx.fillStyle = bodyGrad;
-    ctx.fillRect(x - gw / 2, archCy - g.archR, gw, bottomY - (archCy - g.archR));
-
-    const inner = ctx.createRadialGradient(coreX, coreY, 2, coreX, coreY, gw * 0.32);
-    inner.addColorStop(0, 'rgba(255,255,255,0.95)');
-    inner.addColorStop(0.45, 'rgba(255,250,210,0.55)');
-    inner.addColorStop(1, 'rgba(255,230,150,0)');
-    ctx.fillStyle = inner;
-    ctx.beginPath();
-    ctx.ellipse(coreX, coreY + gh * 0.06, gw * 0.22, gh * 0.28, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-
-    ctx.globalCompositeOperation = 'source-over';
-
-    const halo = ctx.createRadialGradient(coreX, coreY, 6, coreX, coreY, gw * 0.62 * pulse);
-    halo.addColorStop(0, 'rgba(255,255,210,0.32)');
-    halo.addColorStop(0.5, 'rgba(255,220,120,0.12)');
-    halo.addColorStop(1, 'rgba(255,180,80,0)');
-    ctx.fillStyle = halo;
-    ctx.beginPath();
-    ctx.ellipse(coreX, coreY + gh * 0.06, gw * 0.5 * pulse, gh * 0.46 * pulse, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    endingArchPath(x, bottomY, gw, gh);
-    ctx.strokeStyle = 'rgba(255,248,200,0.9)';
-    ctx.lineWidth = 3;
-    ctx.stroke();
-    ctx.strokeStyle = 'rgba(255,255,230,' + (0.22 + 0.18 * Math.abs(Math.sin(fr * 0.06))) + ')';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-    ctx.restore();
+    drawEndingTwinkleStars();
   }
 
   function drawIntroDog() {
@@ -3349,11 +3437,22 @@ function runEndingSequenceReal() {
     const ih = introDogImg.naturalHeight;
     const dw = ENDING_DOG_DW;
     const dh = (ih / iw) * dw;
+    const bob = Math.sin(frame * 0.08) * 2;
+    const dx = -dw / 2;
+    const dy = -dh + 8;
+    const glowPulse = 0.75 + 0.25 * Math.abs(Math.sin(frame * 0.06));
     ctx.save();
     ctx.globalAlpha = dogAlpha;
-    ctx.translate(ENDING_DOG_X, ENDING_DOG_Y);
+    ctx.translate(ENDING_DOG_X, ENDING_DOG_Y + bob);
     ctx.imageSmoothingEnabled = true;
-    ctx.drawImage(introDogImg, -dw / 2, -dh + 8, dw, dh);
+    ctx.shadowColor = 'rgba(255, 248, 210, ' + (0.55 * glowPulse) + ')';
+    ctx.shadowBlur = 22;
+    ctx.drawImage(introDogImg, dx, dy, dw, dh);
+    ctx.shadowColor = 'rgba(190, 220, 255, ' + (0.35 * glowPulse) + ')';
+    ctx.shadowBlur = 12;
+    ctx.drawImage(introDogImg, dx, dy, dw, dh);
+    ctx.shadowBlur = 0;
+    ctx.drawImage(introDogImg, dx, dy, dw, dh);
     ctx.restore();
     ctx.imageSmoothingEnabled = false;
   }
@@ -3498,15 +3597,10 @@ function runEndingSequenceReal() {
     }
 
     ctx.clearRect(0, 0, W, H);
-    drawSeaSkyGrass();
-
-    if (mainPhase !== 'dimOutro') {
-      drawLightGate(frame);
-    }
+    drawEndingScene();
 
     if (mainPhase === 'fadeIntoGate') {
       fadeIntoGateWait++;
-      lightGateAlpha = Math.min(1, lightGateAlpha + 0.006);
       if (fadeIntoGateWait > 36) {
         dogAlpha -= 0.018;
       }
@@ -3525,20 +3619,7 @@ function runEndingSequenceReal() {
         setTimeout(() => {
           markLevel7Done();
           if (outro) outro.classList.add('show');
-          if (wellBtn) {
-            wellBtn.textContent = '好的，开心。我会好好的。再见。';
-            wellBtn.hidden = false;
-            wellBtn.onclick = function () {
-              if (outro) outro.classList.remove('show');
-              if (dimLayer) {
-                dimLayer.classList.remove('on');
-                dimLayer.style.opacity = '0';
-                dimLayer.style.transition = '';
-              }
-              mainPhase = 'photo';
-              photoStartFrame = 0;
-            };
-          }
+          showEndingOutroButton();
         }, 2600);
       }
     }
@@ -3984,8 +4065,13 @@ function startTask7() {
   let flashTimer = 0;
   let screenShake = 0;
 
-  const TUG_ROPE_LEN = 224;
-  const SISTER_HAND_DROP = 30;
+  const TUG_DOG_MAX_W = 268;
+  /** 立绘中绳子末端约在整图高度比例处 */
+  const TUG_ROPE_TIP_RATIO = 0.94;
+  const TUG_HAND_BELOW_ROPE = 4;
+  const TUG_HAND_W = 42;
+  const TUG_HAND_H = 42;
+  const TUG_HAND_GAP = 28;
   const TUG_FONT = '18px var(--pixel)';
   const TUG_FONT_BOLD = 'bold 18px var(--pixel)';
   const TUG_TEXT = '#000';
@@ -3999,12 +4085,23 @@ function startTask7() {
   bgImg.onerror = () => { bgReady = false; };
   bgImg.src = memorialAssetSrc('task7_bg.png');
 
+  const tugDogImg = new Image();
+  let tugDogReady = false;
+  tugDogImg.onload = () => { tugDogReady = true; };
+  tugDogImg.onerror = () => { tugDogReady = false; };
+  tugDogImg.src = memorialAssetSrc('task7_dog.png');
+
   function getTugLayout(fr) {
     const brace = Math.sin(fr * 0.3) * 2;
-    const dogAnchorY = H * 0.20 + dogPullOffset + brace;
-    const mouthY = dogAnchorY + 36;
-    const handY = mouthY + TUG_ROPE_LEN + SISTER_HAND_DROP;
-    return { brace, dogAnchorY, mouthY, handY };
+    const bob = Math.sin(fr * 0.22) * 2;
+    const dogAnchorY = H * 0.06 + dogPullOffset + brace;
+    let ropeEndY = dogAnchorY + bob + 340;
+    if (tugDogReady && tugDogImg.naturalWidth > 2) {
+      const dh = (tugDogImg.naturalHeight / tugDogImg.naturalWidth) * TUG_DOG_MAX_W;
+      ropeEndY = dogAnchorY + bob + dh * TUG_ROPE_TIP_RATIO;
+    }
+    const handY = ropeEndY + TUG_HAND_BELOW_ROPE - sisterPullOffset;
+    return { brace, bob, dogAnchorY, ropeEndY, handY, mouthY: dogAnchorY + 80 };
   }
 
   function showTugComplete(winner) {
@@ -4099,74 +4196,33 @@ function startTask7() {
     ctx.fillRect(0, 0, W, H);
   }
 
-  /** 拔河：像素小狗正面咬住橡皮圈（黑白边牧花纹） */
+  /** 拔河：开心立绘（含绳子，见 task7_dog.png） */
   function drawTugDog(fr) {
+    if (!tugDogReady || !tugDogImg.complete || tugDogImg.naturalWidth < 2) return;
     const L = getTugLayout(fr);
-    const blk = '#14141c';
-    const wht = '#eceef2';
-    const nose = '#e898a4';
+    const scale = TUG_DOG_MAX_W / tugDogImg.naturalWidth;
+    const dw = tugDogImg.naturalWidth * scale;
+    const dh = tugDogImg.naturalHeight * scale;
+    const x = W / 2 - dw / 2;
+    const y = L.dogAnchorY + L.bob;
     ctx.save();
-    ctx.translate(W / 2, L.dogAnchorY);
-    ctx.rotate(-0.1 + Math.sin(fr * 0.22) * 0.03);
-
-    ctx.fillStyle = blk;
-    ctx.fillRect(-24, -12, 48, 52);
-    ctx.fillStyle = wht;
-    ctx.fillRect(-14, -2, 28, 30);
-    ctx.fillStyle = blk;
-    ctx.fillRect(-26, 36, 10, 14);
-    ctx.fillRect(-12, 36, 10, 14);
-    ctx.fillRect(8, 34, 10, 16);
-    ctx.fillRect(20, 34, 10, 16);
-    ctx.fillStyle = wht;
-    ctx.fillRect(-24, 46, 6, 3);
-    ctx.fillRect(-10, 46, 6, 3);
-    ctx.fillRect(10, 46, 6, 3);
-    ctx.fillRect(24, 46, 6, 3);
-
-    ctx.fillStyle = wht;
-    ctx.fillRect(-14, -42, 28, 24);
-    ctx.fillStyle = blk;
-    ctx.fillRect(-16, -44, 32, 10);
-    ctx.fillRect(-16, -40, 9, 20);
-    ctx.fillRect(7, -40, 9, 20);
-    ctx.fillRect(-20, -48, 9, 10);
-    ctx.fillRect(11, -48, 9, 10);
-
-    ctx.strokeStyle = '#2a2018';
-    ctx.lineWidth = 2.5;
-    ctx.beginPath();
-    ctx.moveTo(-8, -30);
-    ctx.lineTo(-4, -27);
-    ctx.moveTo(4, -30);
-    ctx.lineTo(8, -27);
-    ctx.stroke();
-
-    ctx.fillStyle = nose;
-    ctx.fillRect(-2, -20, 4, 4);
-
-    ctx.save();
-    ctx.translate(-22, 6);
-    ctx.rotate(Math.sin(fr * 0.4) * 0.28 - 0.38);
-    ctx.fillStyle = blk;
-    ctx.fillRect(-8, -18, 11, 26);
-    ctx.fillStyle = wht;
-    ctx.fillRect(-5, -12, 5, 12);
-    ctx.restore();
-
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(tugDogImg, x, y, dw, dh);
     ctx.restore();
   }
 
   function drawSisterHands() {
     const L = getTugLayout(frame);
-    const handY = L.handY - sisterPullOffset;
+    const handY = L.handY;
+    const leftX = W / 2 - TUG_HAND_GAP / 2 - TUG_HAND_W;
+    const rightX = W / 2 + TUG_HAND_GAP / 2;
     ctx.save();
     ctx.fillStyle = '#ffd5b0';
-    ctx.fillRect(W / 2 - 45, handY, 26, 26);
-    ctx.fillRect(W / 2 + 19, handY, 26, 26);
+    ctx.fillRect(leftX, handY, TUG_HAND_W, TUG_HAND_H);
+    ctx.fillRect(rightX, handY, TUG_HAND_W, TUG_HAND_H);
     ctx.fillStyle = '#fcae82';
-    ctx.fillRect(W / 2 - 45, handY, 26, 6);
-    ctx.fillRect(W / 2 + 19, handY, 26, 6);
+    ctx.fillRect(leftX, handY, TUG_HAND_W, 10);
+    ctx.fillRect(rightX, handY, TUG_HAND_W, 10);
     ctx.restore();
   }
 
@@ -4292,7 +4348,6 @@ function startTask7() {
 
     drawBackground();
     drawTugDog(frame);
-    drawRubberRing();
     drawSisterHands();
     if (qtePhase === 'play' || qtePhase === 'done') drawQTEMeter();
 

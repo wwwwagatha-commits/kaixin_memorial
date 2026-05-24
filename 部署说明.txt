@@ -1,0 +1,56 @@
+开心之旅 — 微信链接打开方式
+================================
+
+【为什么要两个文件】
+单文件把图片音乐全塞进 HTML 时，很多浏览器/微信会解析失败，
+表现为页面能看见但按钮点不动。现已拆成：
+  - index.html（游戏逻辑，约 140KB）
+  - memorial-assets.js（图片与音乐，约 14MB）
+
+请把本文件夹里的两个文件一起上传，不能只传 HTML。
+
+【部署包内容（2026-05-24 定版）】
+  index.html
+  memorial-assets.js
+
+已内嵌资源包括：星图、开心立绘、BGM/终章 BGM、合照、
+第4关背景、第7关留言场景(task5_bg)、拔河(task7_bg/task7_dog)、
+终章告别场景(ending_bg)、午后客厅 task6 全套素材。
+
+【关卡规则】
+须按顺序通关：完成上一关后才能进入下一关；
+第七关需前六关全部完成。
+
+【推荐：免费静态网页托管（朋友点链接即玩）】
+
+1. Cloudflare Pages（推荐，免费 HTTPS）
+   - 注册 https://dash.cloudflare.com
+   - Pages → Create project → Upload assets
+   - 上传本文件夹全部文件
+   - 得到链接如 https://xxx.pages.dev
+
+2. GitHub Pages
+   - 新建仓库，上传 index.html 与 memorial-assets.js
+   - Settings → Pages → 启用
+   - 链接如 https://用户名.github.io/仓库名/
+
+3. 腾讯云 / 阿里云 对象存储静态网站
+   - 开通 OSS/COS，开启静态网站，上传两文件
+   - 绑定已备案域名（国内通常需要备案）
+
+【微信里分享】
+- 把 https 链接发给朋友，在微信内打开即可
+- 不要用 file:// 或只发 HTML 文件
+- 首次进入需点「出发」解锁音频（微信限制）
+
+【本地测试】
+在本文件夹运行（需 Python）：
+  python -m http.server 8080
+浏览器打开 http://127.0.0.1:8080/
+
+直接双击 HTML 在部分浏览器可能仍异常，请用上面的本地服务器测试。
+
+【重新打包】
+在项目根目录「狗狗转生(1)」执行：
+  powershell -File build-standalone.ps1
+（Mac 可用项目内 Python 脚本或手动同步 web-deploy 后按 build-standalone.ps1 的 embedMap 生成 memorial-assets.js）
