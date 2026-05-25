@@ -3484,7 +3484,7 @@ function runEndingSequenceReal() {
     if (photoReady && finalPhotoImg.complete && finalPhotoImg.naturalWidth > 5) {
       const iw = finalPhotoImg.naturalWidth;
       const ih = finalPhotoImg.naturalHeight;
-      const scale = Math.max(pw / iw, imgAreaH / ih);
+      const scale = Math.min(pw / iw, imgAreaH / ih) * 1.12;
       const dw = iw * scale;
       const dh = ih * scale;
       ctx.save();
@@ -3505,10 +3505,10 @@ function runEndingSequenceReal() {
     ctx.fillStyle = '#8b6914';
     ctx.font = 'bold 16px var(--pixel)';
     ctx.textAlign = 'center';
-    ctx.fillText('开心 & 姐姐', W / 2, py + ph - 30);
+    ctx.fillText('开心、姐姐和妈妈', W / 2, py + ph - 30);
     ctx.fillStyle = 'rgba(180,140,60,0.85)';
     ctx.font = '12px var(--pixel)';
-    ctx.fillText('永远在一起 ❤️', W / 2, py + ph - 10);
+    ctx.fillText('永远在一起❤️', W / 2, py + ph - 10);
     ctx.restore();
   }
 

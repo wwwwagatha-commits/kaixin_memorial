@@ -5,7 +5,7 @@
 单文件把图片音乐全塞进 HTML 时，很多浏览器/微信会解析失败，
 表现为页面能看见但按钮点不动。现已拆成：
   - index.html（游戏逻辑，约 140KB）
-  - memorial-assets.js（图片与音乐，约 14MB）
+  - memorial-assets.js（图片与音乐，约 18MB）
 
 请把本文件夹里的两个文件一起上传，不能只传 HTML。
 
